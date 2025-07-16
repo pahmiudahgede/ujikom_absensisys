@@ -1,6 +1,7 @@
 package config
 
 import (
+	"flag"
 	"log"
 	"os"
 
@@ -55,6 +56,31 @@ func InitializeAll() {
 	ValidateEnv()
 	ConnectDatabase()
 	ConnectRedis()
-	RunMigrationsWithSeed()
+	// RunMigrationsWithSeed()
+
+	reset := flag.Bool("reset", false, "Reset database (drop all tables and recreate with seed)")
+	fresh := flag.Bool("fresh", false, "Fresh migration with seed")
+	flag.Parse()
+
+	switch {
+	case *reset:
+		log.Println("🔄 Resetting database...")
+		ResetDatabase()
+
+	case *fresh:
+		log.Println("🔄 Fresh migration with seed...")
+		RunMigrationsWithSeed()
+
+	default:
+		log.Println("🚀 Starting application...")
+
+		if !CheckTablesExist() {
+			log.Println("⚠️  Some tables are missing. Running migrations...")
+			RunMigrationsWithSeed()
+		}
+
+		log.Println("✅ Application ready!")
+	}
+
 	log.Println("🎉 Application initialized successfully!")
 }
