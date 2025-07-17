@@ -1,8 +1,71 @@
+definitions:
+  config.HealthResponse:
+    properties:
+      database:
+        example: connected
+        type: string
+      redis:
+        example: connected
+        type: string
+      status:
+        example: healthy
+        type: string
+      timestamp:
+        example: "2024-01-01T12:00:00Z"
+        type: string
+    type: object
+  config.RootResponse:
+    properties:
+      env:
+        example: dev
+        type: string
+      message:
+        example: Presensi SMK API is running!
+        type: string
+      status:
+        example: success
+        type: string
+      version:
+        example: 1.0.0
+        type: string
+    type: object
 info:
   contact: {}
   description: Ini adalah API untuk ujikom mif 2025
   termsOfService: http://swagger.io/terms/
   title: UJIKOM API
   version: "1.0"
-paths: {}
+paths:
+  /:
+    get:
+      consumes:
+      - application/json
+      description: Returns basic information about the API including status, version,
+        and environment
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/config.RootResponse'
+      summary: Get API Information
+      tags:
+      - System
+  /ujikom/api/health:
+    get:
+      consumes:
+      - application/json
+      description: Returns the health status of the API including database and Redis
+        connectivity
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/config.HealthResponse'
+      summary: Health Check
+      tags:
+      - System
 swagger: "2.0"

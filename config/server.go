@@ -13,8 +13,57 @@ import (
 	"github.com/gofiber/swagger"
 )
 
-func SetupServer() *fiber.App {
+// RootResponse represents the response for root endpoint
+type RootResponse struct {
+	Status  string `json:"status" example:"success"`
+	Message string `json:"message" example:"Presensi SMK API is running!"`
+	Version string `json:"version" example:"1.0.0"`
+	Env     string `json:"env" example:"dev"`
+}
 
+// HealthResponse represents the response for health check endpoint
+type HealthResponse struct {
+	Status    string `json:"status" example:"healthy"`
+	Timestamp string `json:"timestamp" example:"2024-01-01T12:00:00Z"`
+	Database  string `json:"database" example:"connected"`
+	Redis     string `json:"redis" example:"connected"`
+}
+
+// GetRoot godoc
+// @Summary		Get API Information
+// @Description	Returns basic information about the API including status, version, and environment
+// @Tags		System
+// @Accept		json
+// @Produce		json
+// @Success		200	{object}	RootResponse
+// @Router		/ [get]
+func GetRoot(c *fiber.Ctx) error {
+	return c.JSON(RootResponse{
+		Status:  "success",
+		Message: "Presensi SMK API is running!",
+		Version: os.Getenv("APP_VERSION"),
+		Env:     os.Getenv("APP_ENV"),
+	})
+}
+
+// GetHealth godoc
+// @Summary		Health Check
+// @Description	Returns the health status of the API including database and Redis connectivity
+// @Tags		System
+// @Accept		json
+// @Produce		json
+// @Success		200	{object}	HealthResponse
+// @Router		/ujikom/api/health [get]
+func GetHealth(c *fiber.Ctx) error {
+	return c.JSON(HealthResponse{
+		Status:    "healthy",
+		Timestamp: time.Now().Format(time.RFC3339),
+		Database:  "connected",
+		Redis:     "connected",
+	})
+}
+
+func SetupServer() *fiber.App {
 	app := fiber.New(fiber.Config{
 		AppName:      os.Getenv("APP_NAME"),
 		ServerHeader: "Fiber",
@@ -32,8 +81,10 @@ func SetupServer() *fiber.App {
 		},
 	})
 
+	// Swagger endpoint
 	app.Get("/swagger/*", swagger.HandlerDefault)
 
+	// Middleware
 	app.Use(recover.New())
 	app.Use(logger.New(logger.Config{
 		Format: "${cyan}[${time}] ${white}${pid} ${red}${status} ${blue}[${method}] ${white}${path} ${yellow}${body} ${reset}${latency}\n",
@@ -48,15 +99,10 @@ func SetupServer() *fiber.App {
 		MaxAge:           3600,
 	}))
 
-	app.Get("/", func(c *fiber.Ctx) error {
-		return c.JSON(fiber.Map{
-			"status":  "success",
-			"message": "Presensi SMK API is running!",
-			"version": os.Getenv("APP_VERSION"),
-			"env":     os.Getenv("APP_ENV"),
-		})
-	})
+	// Root endpoint with Swagger documentation
+	app.Get("/", GetRoot)
 
+	// Setup API group
 	baseURL := os.Getenv("BASE_URL")
 	if baseURL == "" {
 		baseURL = "/api"
@@ -64,15 +110,8 @@ func SetupServer() *fiber.App {
 
 	api := app.Group(baseURL)
 
-	api.Get("/health", func(c *fiber.Ctx) error {
-		return c.JSON(fiber.Map{
-			"status":    "healthy",
-			"timestamp": time.Now().Format(time.RFC3339),
-			"database":  "connected",
-			"redis":     "connected",
-		})
-
-	})
+	// Health check endpoint with Swagger documentation
+	api.Get("/health", GetHealth)
 
 	return app
 }
