@@ -5,18 +5,16 @@ import (
 )
 
 type APIResponse struct {
-	Success bool        `json:"success"`
-	Message string      `json:"message"`
-	Data    interface{} `json:"data,omitempty"`
-	Error   interface{} `json:"error,omitempty"`
-	Meta    *Meta       `json:"meta,omitempty"`
+	Meta MetaResponse `json:"meta"`
+	Data interface{}  `json:"data,omitempty"`
 }
 
-type Meta struct {
-	CurrentPage int   `json:"current_page,omitempty"`
-	PerPage     int   `json:"per_page,omitempty"`
-	Total       int64 `json:"total,omitempty"`
-	LastPage    int   `json:"last_page,omitempty"`
+type MetaResponse struct {
+	Status  int    `json:"status"`
+	Message string `json:"message"`
+	Page    *int   `json:"page,omitempty"`
+	Limit   *int   `json:"limit,omitempty"`
+	Total   *int64 `json:"total,omitempty"`
 }
 
 type ErrorDetail struct {
@@ -27,30 +25,67 @@ type ErrorDetail struct {
 
 func SuccessResponse(c *fiber.Ctx, message string, data interface{}) error {
 	return c.Status(fiber.StatusOK).JSON(APIResponse{
-		Success: true,
-		Message: message,
-		Data:    data,
+		Meta: MetaResponse{
+			Status:  200,
+			Message: message,
+		},
+		Data: data,
+	})
+}
+
+func SuccessResponseOnly(c *fiber.Ctx, message string) error {
+	return c.Status(fiber.StatusOK).JSON(APIResponse{
+		Meta: MetaResponse{
+			Status:  200,
+			Message: message,
+		},
 	})
 }
 
 func CreatedResponse(c *fiber.Ctx, message string, data interface{}) error {
 	return c.Status(fiber.StatusCreated).JSON(APIResponse{
-		Success: true,
-		Message: message,
-		Data:    data,
+		Meta: MetaResponse{
+			Status:  201,
+			Message: message,
+		},
+		Data: data,
 	})
 }
 
-func ErrorResponse(c *fiber.Ctx, statusCode int, message string, err interface{}) error {
-	return c.Status(statusCode).JSON(APIResponse{
-		Success: false,
-		Message: message,
-		Error:   err,
+func PaginatedResponse(c *fiber.Ctx, message string, data interface{}, page, limit int, total int64) error {
+	return c.Status(fiber.StatusOK).JSON(APIResponse{
+		Meta: MetaResponse{
+			Status:  200,
+			Message: message,
+			Page:    &page,
+			Limit:   &limit,
+			Total:   &total,
+		},
+		Data: data,
 	})
 }
 
-func BadRequestResponse(c *fiber.Ctx, message string, err interface{}) error {
-	return ErrorResponse(c, fiber.StatusBadRequest, message, err)
+func ErrorResponse(c *fiber.Ctx, statusCode int, message string, data interface{}) error {
+	response := APIResponse{
+		Meta: MetaResponse{
+			Status:  statusCode,
+			Message: message,
+		},
+	}
+
+	if data != nil {
+		response.Data = data
+	}
+
+	return c.Status(statusCode).JSON(response)
+}
+
+func BadRequestResponse(c *fiber.Ctx, message string, errors ...interface{}) error {
+	var errorData interface{}
+	if len(errors) > 0 && errors[0] != nil {
+		errorData = errors[0]
+	}
+	return ErrorResponse(c, fiber.StatusBadRequest, message, errorData)
 }
 
 func UnauthorizedResponse(c *fiber.Ctx, message string) error {
@@ -66,54 +101,19 @@ func NotFoundResponse(c *fiber.Ctx, message string) error {
 }
 
 func ValidationErrorResponse(c *fiber.Ctx, message string, errors []ErrorDetail) error {
-	return c.Status(fiber.StatusUnprocessableEntity).JSON(APIResponse{
-		Success: false,
-		Message: message,
-		Error:   errors,
-	})
+	return ErrorResponse(c, fiber.StatusUnprocessableEntity, message, errors)
 }
 
 func InternalServerErrorResponse(c *fiber.Ctx, message string) error {
 	return ErrorResponse(c, fiber.StatusInternalServerError, message, nil)
 }
 
-func PaginatedResponse(c *fiber.Ctx, message string, data interface{}, meta *Meta) error {
-	return c.Status(fiber.StatusOK).JSON(APIResponse{
-		Success: true,
-		Message: message,
-		Data:    data,
-		Meta:    meta,
-	})
-}
-
-func NoContentResponse(c *fiber.Ctx) error {
-	return c.SendStatus(fiber.StatusNoContent)
-}
-
-func CreatePaginationMeta(currentPage, perPage int, total int64) *Meta {
-	lastPage := int((total + int64(perPage) - 1) / int64(perPage))
-	if lastPage < 1 {
-		lastPage = 1
-	}
-
-	return &Meta{
-		CurrentPage: currentPage,
-		PerPage:     perPage,
-		Total:       total,
-		LastPage:    lastPage,
-	}
-}
-
-func CreateValidationError(field, message, code string) ErrorDetail {
-	return ErrorDetail{
-		Field:   field,
-		Message: message,
-		Code:    code,
-	}
-}
-
 func OK(c *fiber.Ctx, data interface{}) error {
 	return SuccessResponse(c, "Success", data)
+}
+
+func OKOnly(c *fiber.Ctx, message string) error {
+	return SuccessResponseOnly(c, message)
 }
 
 func Created(c *fiber.Ctx, data interface{}) error {
@@ -125,11 +125,11 @@ func Updated(c *fiber.Ctx, data interface{}) error {
 }
 
 func Deleted(c *fiber.Ctx) error {
-	return SuccessResponse(c, "Data deleted successfully", nil)
+	return SuccessResponseOnly(c, "Data deleted successfully")
 }
 
 func BadRequest(c *fiber.Ctx, message string) error {
-	return BadRequestResponse(c, message, nil)
+	return BadRequestResponse(c, message)
 }
 
 func Unauthorized(c *fiber.Ctx) error {
@@ -146,4 +146,16 @@ func NotFound(c *fiber.Ctx, resource string) error {
 
 func InternalError(c *fiber.Ctx) error {
 	return InternalServerErrorResponse(c, "Internal server error")
+}
+
+func CreateValidationError(field, message, code string) ErrorDetail {
+	return ErrorDetail{
+		Field:   field,
+		Message: message,
+		Code:    code,
+	}
+}
+
+func NoContentResponse(c *fiber.Ctx) error {
+	return c.SendStatus(fiber.StatusNoContent)
 }

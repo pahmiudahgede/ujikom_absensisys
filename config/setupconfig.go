@@ -56,7 +56,6 @@ func InitializeAll() {
 	ValidateEnv()
 	ConnectDatabase()
 	ConnectRedis()
-	// RunMigrationsWithSeed()
 
 	reset := flag.Bool("reset", false, "Reset database (drop all tables and recreate with seed)")
 	fresh := flag.Bool("fresh", false, "Fresh migration with seed")

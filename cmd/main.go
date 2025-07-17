@@ -2,6 +2,7 @@ package main
 
 import (
 	"absensibe/config"
+	"absensibe/router"
 	"log"
 	"os"
 )
@@ -11,7 +12,7 @@ func main() {
 	config.InitializeAll()
 
 	app := config.SetupServer()
-	// routes.SetupRoutes(app)
+	router.SetupRoutes(app)
 
 	port := os.Getenv("APP_PORT")
 	if port == "" {
