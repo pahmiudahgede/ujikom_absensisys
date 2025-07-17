@@ -3,6 +3,7 @@ package seeders
 
 import (
 	"absensibe/models"
+
 	"gorm.io/gorm"
 )
 
@@ -28,10 +29,10 @@ func (s *SubjectSeeder) Run(db *gorm.DB) error {
 
 	// Common subjects for all schools
 	commonSubjects := []struct {
-		Code         string
-		Name         string
-		CreditHours  int
-		Description  string
+		Code        string
+		Name        string
+		CreditHours int
+		Description string
 	}{
 		{
 			Code:        "MTK",
@@ -91,10 +92,10 @@ func (s *SubjectSeeder) Run(db *gorm.DB) error {
 
 	// Vocational subjects by major
 	vocationalSubjects := map[string][]struct {
-		Code         string
-		Name         string
-		CreditHours  int
-		Description  string
+		Code        string
+		Name        string
+		CreditHours int
+		Description string
 	}{
 		"RPL": {
 			{

@@ -5,6 +5,7 @@ import (
 	"absensibe/models"
 	"fmt"
 	"time"
+
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
@@ -60,7 +61,7 @@ func (s *StudentSeeder) Run(db *gorm.DB) error {
 		for i := 1; i <= 30; i++ {
 			var name string
 			var gender string
-			
+
 			// Alternate between male and female
 			if i%2 == 1 {
 				name = maleNames[(i-1)/2%len(maleNames)]
@@ -71,9 +72,9 @@ func (s *StudentSeeder) Run(db *gorm.DB) error {
 			}
 
 			// Generate birth date (age 15-18)
-			birthYear := 2024 - 15 - (i%4) // Age 15-18
-			birthMonth := (i%12) + 1
-			birthDay := (i%28) + 1
+			birthYear := 2024 - 15 - (i % 4) // Age 15-18
+			birthMonth := (i % 12) + 1
+			birthDay := (i % 28) + 1
 			birthDate := time.Date(birthYear, time.Month(birthMonth), birthDay, 0, 0, 0, 0, time.UTC)
 
 			// Entry year based on grade

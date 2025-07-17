@@ -1,0 +1,8 @@
+info:
+  contact: {}
+  description: Ini adalah API untuk ujikom mif 2025
+  termsOfService: http://swagger.io/terms/
+  title: UJIKOM API
+  version: "1.0"
+paths: {}
+swagger: "2.0"

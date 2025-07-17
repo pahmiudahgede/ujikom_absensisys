@@ -4,6 +4,7 @@ package seeders
 import (
 	"absensibe/models"
 	"time"
+
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
@@ -117,7 +118,7 @@ func (s *TeacherSeeder) Run(db *gorm.DB) error {
 	for _, school := range schools {
 		for _, data := range teacherData {
 			birthDate, _ := time.Parse("2006-01-02", data.BirthDate)
-			
+
 			teacher := models.Teacher{
 				NIP:          data.NIP,
 				SchoolID:     school.ID,

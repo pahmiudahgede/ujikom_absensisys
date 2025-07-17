@@ -4,6 +4,7 @@ package seeders
 import (
 	"absensibe/models"
 	"fmt"
+
 	"gorm.io/gorm"
 )
 
@@ -34,7 +35,7 @@ func (s *ClassSeeder) Run(db *gorm.DB) error {
 		// Get teachers for homeroom assignment
 		var teachers []models.Teacher
 		db.Where("school_id = ?", school.ID).Find(&teachers)
-		
+
 		teacherIndex := 0
 
 		for _, jurusan := range school.Jurusan {
@@ -42,15 +43,15 @@ func (s *ClassSeeder) Run(db *gorm.DB) error {
 			for _, grade := range grades {
 				for classNum := 1; classNum <= 2; classNum++ {
 					className := fmt.Sprintf("%s-%s-%d", grade, jurusan.Code, classNum)
-					
+
 					class := models.Class{
-						Name:          className,
-						Grade:         grade,
-						JurusanID:     jurusan.ID,
-						SchoolID:      school.ID,
-						MaxStudents:   36,
-						AcademicYear:  academicYear,
-						IsActive:      true,
+						Name:         className,
+						Grade:        grade,
+						JurusanID:    jurusan.ID,
+						SchoolID:     school.ID,
+						MaxStudents:  36,
+						AcademicYear: academicYear,
+						IsActive:     true,
 					}
 
 					// Assign homeroom teacher if available
