@@ -7,10 +7,11 @@ import (
 	"os"
 )
 
-// @title			UJIKOM API
-// @version		1.0
-// @description	Ini adalah API untuk ujikom mif 2025
-// @termsOfService	http://swagger.io/terms/
+//	@title			UJIKOM API
+//	@version		1.0
+//	@description	Ini adalah API untuk ujikom mif 2025
+//	@termsOfService	http://swagger.io/terms/
+
 func main() {
 	config.InitializeAll()
 

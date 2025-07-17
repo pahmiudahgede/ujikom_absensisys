@@ -30,13 +30,14 @@ type HealthResponse struct {
 }
 
 // GetRoot godoc
-// @Summary		Get API Information
-// @Description	Returns basic information about the API including status, version, and environment
-// @Tags		System
-// @Accept		json
-// @Produce		json
-// @Success		200	{object}	RootResponse
-// @Router		/ [get]
+//
+//	@Summary		Get API Information
+//	@Description	Returns basic information about the API including status, version, and environment
+//	@Tags			System
+//	@Accept			json
+//	@Produce		json
+//	@Success		200	{object}	RootResponse
+//	@Router			/ [get]
 func GetRoot(c *fiber.Ctx) error {
 	return c.JSON(RootResponse{
 		Status:  "success",
@@ -47,13 +48,14 @@ func GetRoot(c *fiber.Ctx) error {
 }
 
 // GetHealth godoc
-// @Summary		Health Check
-// @Description	Returns the health status of the API including database and Redis connectivity
-// @Tags		System
-// @Accept		json
-// @Produce		json
-// @Success		200	{object}	HealthResponse
-// @Router		/ujikom/api/health [get]
+//
+//	@Summary		Health Check
+//	@Description	Returns the health status of the API including database and Redis connectivity
+//	@Tags			System
+//	@Accept			json
+//	@Produce		json
+//	@Success		200	{object}	HealthResponse
+//	@Router			/ujikom/api/health [get]
 func GetHealth(c *fiber.Ctx) error {
 	return c.JSON(HealthResponse{
 		Status:    "healthy",

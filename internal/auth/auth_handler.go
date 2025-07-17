@@ -1,3 +1,4 @@
+// File: internal/auth/auth_handler.go (with Swagger docs added)
 package auth
 
 import (
@@ -22,6 +23,20 @@ func NewStudentHandler(service StudentService) *StudentHandler {
 	}
 }
 
+// Login godoc
+//
+//	@Summary		Student Login
+//	@Description	Authenticate student dengan NISN dan password
+//	@Tags			Auth
+//	@Accept			json
+//	@Produce		json
+//	@Param			request	body		LoginRequest							true	"Login credentials"
+//	@Success		200		{object}	utils.LoginSuccessResponse				"Login successful"
+//	@Failure		400		{object}	utils.BadRequestAPIResponse				"Bad request - invalid input"
+//	@Failure		401		{object}	utils.UnauthorizedAPIResponse			"Unauthorized - invalid credentials"
+//	@Failure		500		{object}	utils.InternalServerErrorAPIResponse	"Internal server error"
+//	@Security		ApiKeyAuth
+//	@Router			/student/login [post]
 func (h *StudentHandler) Login(c *fiber.Ctx) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
@@ -43,6 +58,19 @@ func (h *StudentHandler) Login(c *fiber.Ctx) error {
 	return utils.SuccessResponse(c, "login success", loginResponse)
 }
 
+// Logout godoc
+//
+//	@Summary		Student Logout
+//	@Description	Logout student dan hapus session yang aktif
+//	@Tags			Auth
+//	@Accept			json
+//	@Produce		json
+//	@Success		200	{object}	utils.SuccessOnlyAPIResponse			"Logout successful"
+//	@Failure		401	{object}	utils.UnauthorizedAPIResponse			"Unauthorized - invalid or expired token"
+//	@Failure		500	{object}	utils.InternalServerErrorAPIResponse	"Internal server error"
+//	@Security		ApiKeyAuth
+//	@Security		BearerAuth
+//	@Router			/student/logout [post]
 func (h *StudentHandler) Logout(c *fiber.Ctx) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()

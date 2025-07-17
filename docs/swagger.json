@@ -31,6 +31,106 @@
                 }
             }
         },
+        "/student/login": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Authenticate student dengan NISN dan password",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Student Login",
+                "parameters": [
+                    {
+                        "description": "Login credentials",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/LoginRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Login successful",
+                        "schema": {
+                            "$ref": "#/definitions/LoginSuccessResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/BadRequestAPIResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - invalid credentials",
+                        "schema": {
+                            "$ref": "#/definitions/UnauthorizedAPIResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/InternalServerErrorAPIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/student/logout": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    },
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Logout student dan hapus session yang aktif",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Student Logout",
+                "responses": {
+                    "200": {
+                        "description": "Logout successful",
+                        "schema": {
+                            "$ref": "#/definitions/SuccessOnlyAPIResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - invalid or expired token",
+                        "schema": {
+                            "$ref": "#/definitions/UnauthorizedAPIResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/InternalServerErrorAPIResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/ujikom/api/health": {
             "get": {
                 "description": "Returns the health status of the API including database and Redis connectivity",
@@ -56,6 +156,155 @@
         }
     },
     "definitions": {
+        "BadRequestAPIResponse": {
+            "type": "object",
+            "properties": {
+                "data": {},
+                "meta": {
+                    "type": "object",
+                    "properties": {
+                        "message": {
+                            "type": "string",
+                            "example": "Bad request"
+                        },
+                        "status": {
+                            "type": "integer",
+                            "example": 400
+                        }
+                    }
+                }
+            }
+        },
+        "InternalServerErrorAPIResponse": {
+            "type": "object",
+            "properties": {
+                "meta": {
+                    "type": "object",
+                    "properties": {
+                        "message": {
+                            "type": "string",
+                            "example": "Internal server error"
+                        },
+                        "status": {
+                            "type": "integer",
+                            "example": 500
+                        }
+                    }
+                }
+            }
+        },
+        "LoginRequest": {
+            "type": "object",
+            "required": [
+                "nisn",
+                "password"
+            ],
+            "properties": {
+                "deviceinfo": {
+                    "type": "string",
+                    "example": "postmanstudent123x0=="
+                },
+                "nisn": {
+                    "type": "string",
+                    "example": "2024000579"
+                },
+                "password": {
+                    "type": "string",
+                    "example": "password123"
+                }
+            }
+        },
+        "LoginSuccessResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "object",
+                    "properties": {
+                        "access_token": {
+                            "type": "string",
+                            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                        },
+                        "created_at": {
+                            "type": "string",
+                            "example": "0001-01-01T00:00:00Z"
+                        },
+                        "device_info": {
+                            "type": "string",
+                            "example": "postmanstudent123x0=="
+                        },
+                        "last_activity": {
+                            "type": "string",
+                            "example": "0001-01-01T00:00:00Z"
+                        },
+                        "name": {
+                            "type": "string",
+                            "example": "Eko Saputra"
+                        },
+                        "nisn": {
+                            "type": "string",
+                            "example": "2024000579"
+                        },
+                        "session_id": {
+                            "type": "string",
+                            "example": "b5e882d0eb21c5ba7752d2b8f216ccad"
+                        },
+                        "user_id": {
+                            "type": "string",
+                            "example": "003061ee-97ff-4d00-8155-f4bf15e319dd"
+                        }
+                    }
+                },
+                "meta": {
+                    "type": "object",
+                    "properties": {
+                        "message": {
+                            "type": "string",
+                            "example": "login success"
+                        },
+                        "status": {
+                            "type": "integer",
+                            "example": 200
+                        }
+                    }
+                }
+            }
+        },
+        "SuccessOnlyAPIResponse": {
+            "type": "object",
+            "properties": {
+                "meta": {
+                    "type": "object",
+                    "properties": {
+                        "message": {
+                            "type": "string",
+                            "example": "Operation successful"
+                        },
+                        "status": {
+                            "type": "integer",
+                            "example": 200
+                        }
+                    }
+                }
+            }
+        },
+        "UnauthorizedAPIResponse": {
+            "type": "object",
+            "properties": {
+                "meta": {
+                    "type": "object",
+                    "properties": {
+                        "message": {
+                            "type": "string",
+                            "example": "Unauthorized access"
+                        },
+                        "status": {
+                            "type": "integer",
+                            "example": 401
+                        }
+                    }
+                }
+            }
+        },
         "config.HealthResponse": {
             "type": "object",
             "properties": {
