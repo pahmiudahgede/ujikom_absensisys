@@ -1,4 +1,3 @@
-// ===== seeders/subject_seeder.go =====
 package seeders
 
 import (
@@ -7,205 +6,54 @@ import (
 	"gorm.io/gorm"
 )
 
-type SubjectSeeder struct {
-	BaseSeeder
+type SubjectSeeder struct{}
+
+func (s *SubjectSeeder) GetName() string {
+	return "Subjects"
 }
 
-func (s *SubjectSeeder) Run(db *gorm.DB) error {
-	// Skip if data already exists
-	if DataExists(db, &models.Subject{}, "code = ?", "MTK") {
-		return nil
-	}
-
-	// Get school IDs
-	var schools []models.School
-	if err := db.Find(&schools).Error; err != nil {
+func (s *SubjectSeeder) Seed(db *gorm.DB) error {
+	var count int64
+	if err := db.Model(&models.Subject{}).Count(&count).Error; err != nil {
 		return err
 	}
 
-	if len(schools) == 0 {
+	if count > 0 {
 		return nil
 	}
 
-	// Common subjects for all schools
-	commonSubjects := []struct {
-		Code        string
-		Name        string
-		CreditHours int
-		Description string
-	}{
-		{
-			Code:        "MTK",
-			Name:        "Matematika",
-			CreditHours: 4,
-			Description: "Mata pelajaran matematika dasar dan terapan",
-		},
-		{
-			Code:        "BIND",
-			Name:        "Bahasa Indonesia",
-			CreditHours: 3,
-			Description: "Mata pelajaran bahasa Indonesia",
-		},
-		{
-			Code:        "BING",
-			Name:        "Bahasa Inggris",
-			CreditHours: 3,
-			Description: "Mata pelajaran bahasa Inggris",
-		},
-		{
-			Code:        "PJOK",
-			Name:        "Pendidikan Jasmani dan Kesehatan",
-			CreditHours: 2,
-			Description: "Mata pelajaran olahraga dan kesehatan",
-		},
-		{
-			Code:        "PKN",
-			Name:        "Pendidikan Kewarganegaraan",
-			CreditHours: 2,
-			Description: "Mata pelajaran pendidikan kewarganegaraan",
-		},
-		{
-			Code:        "PAI",
-			Name:        "Pendidikan Agama Islam",
-			CreditHours: 2,
-			Description: "Mata pelajaran pendidikan agama Islam",
-		},
-		{
-			Code:        "SEJIND",
-			Name:        "Sejarah Indonesia",
-			CreditHours: 2,
-			Description: "Mata pelajaran sejarah Indonesia",
-		},
-		{
-			Code:        "KIMIA",
-			Name:        "Kimia",
-			CreditHours: 3,
-			Description: "Mata pelajaran kimia",
-		},
-		{
-			Code:        "FISIKA",
-			Name:        "Fisika",
-			CreditHours: 3,
-			Description: "Mata pelajaran fisika",
-		},
+	var school models.School
+	if err := db.First(&school).Error; err != nil {
+		return err
 	}
 
-	// Vocational subjects by major
-	vocationalSubjects := map[string][]struct {
-		Code        string
-		Name        string
-		CreditHours int
-		Description string
-	}{
-		"RPL": {
-			{
-				Code:        "PROGDAS",
-				Name:        "Pemrograman Dasar",
-				CreditHours: 6,
-				Description: "Mata pelajaran pemrograman dasar",
-			},
-			{
-				Code:        "PROGWEB",
-				Name:        "Pemrograman Web",
-				CreditHours: 6,
-				Description: "Mata pelajaran pemrograman web",
-			},
-			{
-				Code:        "PROGMOB",
-				Name:        "Pemrograman Mobile",
-				CreditHours: 6,
-				Description: "Mata pelajaran pemrograman mobile",
-			},
-			{
-				Code:        "BASDAT",
-				Name:        "Basis Data",
-				CreditHours: 4,
-				Description: "Mata pelajaran basis data",
-			},
-		},
-		"TKJ": {
-			{
-				Code:        "JARKOM",
-				Name:        "Jaringan Komputer",
-				CreditHours: 6,
-				Description: "Mata pelajaran jaringan komputer",
-			},
-			{
-				Code:        "SISOP",
-				Name:        "Sistem Operasi",
-				CreditHours: 4,
-				Description: "Mata pelajaran sistem operasi",
-			},
-			{
-				Code:        "ADMSER",
-				Name:        "Administrasi Server",
-				CreditHours: 6,
-				Description: "Mata pelajaran administrasi server",
-			},
-		},
-		"MM": {
-			{
-				Code:        "DESGRAF",
-				Name:        "Desain Grafis",
-				CreditHours: 6,
-				Description: "Mata pelajaran desain grafis",
-			},
-			{
-				Code:        "VIDED",
-				Name:        "Video Editing",
-				CreditHours: 4,
-				Description: "Mata pelajaran video editing",
-			},
-			{
-				Code:        "ANIMASI",
-				Name:        "Animasi",
-				CreditHours: 6,
-				Description: "Mata pelajaran animasi",
-			},
-		},
+	subjects := []models.Subject{
+		// Mata Pelajaran Umum
+		{Code: "BIND", Name: "Bahasa Indonesia", SchoolID: school.ID, CreditHours: 3, IsActive: true},
+		{Code: "BING", Name: "Bahasa Inggris", SchoolID: school.ID, CreditHours: 3, IsActive: true},
+		{Code: "MTK", Name: "Matematika", SchoolID: school.ID, CreditHours: 4, IsActive: true},
+		{Code: "SEJARAH", Name: "Sejarah Indonesia", SchoolID: school.ID, CreditHours: 2, IsActive: true},
+		{Code: "PKN", Name: "Pendidikan Kewarganegaraan", SchoolID: school.ID, CreditHours: 2, IsActive: true},
+		{Code: "AGAMA", Name: "Pendidikan Agama dan Budi Pekerti", SchoolID: school.ID, CreditHours: 3, IsActive: true},
+		{Code: "PJOK", Name: "Pendidikan Jasmani, Olahraga, dan Kesehatan", SchoolID: school.ID, CreditHours: 2, IsActive: true},
+
+		// Mata Pelajaran Kejuruan - RPL
+		{Code: "PEMROG", Name: "Pemrograman Dasar", SchoolID: school.ID, CreditHours: 6, IsActive: true},
+		{Code: "BASIS_DATA", Name: "Basis Data", SchoolID: school.ID, CreditHours: 6, IsActive: true},
+		{Code: "WEB", Name: "Pemrograman Web", SchoolID: school.ID, CreditHours: 8, IsActive: true},
+		{Code: "MOBILE", Name: "Pemrograman Mobile", SchoolID: school.ID, CreditHours: 6, IsActive: true},
+		{Code: "RPL", Name: "Rekayasa Perangkat Lunak", SchoolID: school.ID, CreditHours: 6, IsActive: true},
+
+		// Mata Pelajaran Kejuruan - TKJ
+		{Code: "JARKOM", Name: "Jaringan Komputer", SchoolID: school.ID, CreditHours: 6, IsActive: true},
+		{Code: "SERVER", Name: "Administrasi Server", SchoolID: school.ID, CreditHours: 6, IsActive: true},
+		{Code: "KEAMANAN", Name: "Keamanan Jaringan", SchoolID: school.ID, CreditHours: 4, IsActive: true},
+
+		// Mata Pelajaran Kejuruan - MM
+		{Code: "GRAFIS", Name: "Desain Grafis", SchoolID: school.ID, CreditHours: 6, IsActive: true},
+		{Code: "VIDEO", Name: "Video Editing", SchoolID: school.ID, CreditHours: 6, IsActive: true},
+		{Code: "ANIMASI", Name: "Animasi 2D/3D", SchoolID: school.ID, CreditHours: 6, IsActive: true},
 	}
 
-	// Create subjects for each school
-	for _, school := range schools {
-		// Create common subjects
-		for _, subjectData := range commonSubjects {
-			subject := models.Subject{
-				Code:        subjectData.Code,
-				Name:        subjectData.Name,
-				SchoolID:    school.ID,
-				CreditHours: subjectData.CreditHours,
-				Description: &subjectData.Description,
-				IsActive:    true,
-			}
-
-			if err := db.Create(&subject).Error; err != nil {
-				return err
-			}
-		}
-
-		// Create vocational subjects based on available jurusan
-		var jurusans []models.Jurusan
-		db.Where("school_id = ?", school.ID).Find(&jurusans)
-
-		for _, jurusan := range jurusans {
-			if subjects, exists := vocationalSubjects[jurusan.Code]; exists {
-				for _, subjectData := range subjects {
-					subject := models.Subject{
-						Code:        subjectData.Code,
-						Name:        subjectData.Name,
-						SchoolID:    school.ID,
-						CreditHours: subjectData.CreditHours,
-						Description: &subjectData.Description,
-						IsActive:    true,
-					}
-
-					if err := db.Create(&subject).Error; err != nil {
-						return err
-					}
-				}
-			}
-		}
-	}
-
-	return nil
+	return db.Create(&subjects).Error
 }

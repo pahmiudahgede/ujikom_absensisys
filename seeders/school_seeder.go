@@ -1,4 +1,3 @@
-// ===== seeders/school_seeder.go =====
 package seeders
 
 import (
@@ -8,55 +7,51 @@ import (
 	"gorm.io/gorm"
 )
 
-type SchoolSeeder struct {
-	BaseSeeder
+type SchoolSeeder struct{}
+
+func (s *SchoolSeeder) GetName() string {
+	return "Schools"
 }
 
-func (s *SchoolSeeder) Run(db *gorm.DB) error {
-	// Skip if data already exists
-	if DataExists(db, &models.School{}, "npsn = ?", "12345678") {
-		return nil
+func (s *SchoolSeeder) Seed(db *gorm.DB) error {
+	// Check if schools already exist
+	var count int64
+	if err := db.Model(&models.School{}).Count(&count).Error; err != nil {
+		return err
 	}
 
-	standFrom, _ := time.Parse("2006-01-02", "1995-08-17")
+	if count > 0 {
+		return nil // Skip if data exists
+	}
+
+	standFrom := time.Date(1985, 7, 15, 0, 0, 0, 0, time.UTC)
 
 	schools := []models.School{
 		{
-			NPSN:          "12345678",
+			NPSN:          "20401234",
 			Name:          "SMK Negeri 1 Jakarta",
 			Email:         "smkn1jakarta@education.go.id",
-			Phone:         "021-12345678",
-			Fax:           stringPtr("021-12345679"),
+			Phone:         "021-1234567",
+			Fax:           stringPtr("021-1234568"),
 			Website:       stringPtr("https://smkn1jakarta.sch.id"),
 			StandFrom:     &standFrom,
 			Akreditasi:    "A",
-			KepalaSekolah: stringPtr("Dr. Ahmad Santoso, S.Pd., M.M."),
+			KepalaSekolah: stringPtr("Dr. Ahmad Susanto, M.Pd"),
 			IsActive:      true,
 		},
 		{
-			NPSN:          "87654321",
-			Name:          "SMK Swasta Teknologi Nusantara",
-			Email:         "admin@smkteknologi.sch.id",
-			Phone:         "021-87654321",
-			Fax:           stringPtr("021-87654322"),
-			Website:       stringPtr("https://smkteknologi.sch.id"),
+			NPSN:          "20401235",
+			Name:          "SMK Negeri 2 Jakarta",
+			Email:         "smkn2jakarta@education.go.id",
+			Phone:         "021-2345678",
+			Fax:           stringPtr("021-2345679"),
+			Website:       stringPtr("https://smkn2jakarta.sch.id"),
 			StandFrom:     &standFrom,
-			Akreditasi:    "B",
-			KepalaSekolah: stringPtr("Dra. Siti Rahayu, M.Pd."),
+			Akreditasi:    "A",
+			KepalaSekolah: stringPtr("Dra. Siti Nurhaliza, M.M"),
 			IsActive:      true,
 		},
 	}
 
-	for _, school := range schools {
-		if err := db.Create(&school).Error; err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// Helper function
-func stringPtr(s string) *string {
-	return &s
+	return db.Create(&schools).Error
 }

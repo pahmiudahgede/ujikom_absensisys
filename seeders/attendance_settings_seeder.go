@@ -2,40 +2,48 @@ package seeders
 
 import (
 	"absensibe/models"
-	"fmt"
+	"time"
 
 	"gorm.io/gorm"
 )
 
-type AttendanceSettingsSeeder struct {
-	BaseSeeder
+type AttendanceSettingsSeeder struct{}
+
+func (s *AttendanceSettingsSeeder) GetName() string {
+	return "Attendance Settings"
 }
 
-func (s *AttendanceSettingsSeeder) Run(db *gorm.DB) error {
-	if DataExists(db, &models.AttendanceSettings{}, "school_id != ?", "") {
+func (s *AttendanceSettingsSeeder) Seed(db *gorm.DB) error {
+	var count int64
+	if err := db.Model(&models.AttendanceSettings{}).Count(&count).Error; err != nil {
+		return err
+	}
+
+	if count > 0 {
 		return nil
 	}
 
-	var schools []models.School
-	db.Find(&schools)
-
-	for _, school := range schools {
-		settings := models.AttendanceSettings{
-			SchoolID:        school.ID,
-			CheckinStart:    models.NewTimeOnly(6, 0, 0),
-			CheckinEnd:      models.NewTimeOnly(7, 30, 0),
-			CheckoutStart:   models.NewTimeOnly(15, 0, 0),
-			CheckoutEnd:     models.NewTimeOnly(17, 0, 0),
-			LateTolerance:   15,
-			RequirePhoto:    true,
-			RequireLocation: true,
-			MaxDistance:     100,
-		}
-
-		if err := db.Create(&settings).Error; err != nil {
-			return fmt.Errorf("failed to create attendance settings for school %s: %v", school.Name, err)
-		}
+	var school models.School
+	if err := db.First(&school).Error; err != nil {
+		return err
 	}
 
-	return nil
+	checkinStart, _ := time.Parse("15:04:05", "06:00:00")
+	checkinEnd, _ := time.Parse("15:04:05", "07:30:00")
+	checkoutStart, _ := time.Parse("15:04:05", "15:00:00")
+	checkoutEnd, _ := time.Parse("15:04:05", "17:00:00")
+
+	settings := models.AttendanceSettings{
+		SchoolID:        school.ID,
+		CheckinStart:    checkinStart,
+		CheckinEnd:      checkinEnd,
+		CheckoutStart:   checkoutStart,
+		CheckoutEnd:     checkoutEnd,
+		LateTolerance:   15,
+		RequirePhoto:    true,
+		RequireLocation: true,
+		MaxDistance:     100,
+	}
+
+	return db.Create(&settings).Error
 }

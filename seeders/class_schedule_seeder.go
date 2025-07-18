@@ -2,91 +2,77 @@ package seeders
 
 import (
 	"absensibe/models"
-	"fmt"
+	"time"
 
 	"gorm.io/gorm"
 )
 
-type ClassScheduleSeeder struct {
-	BaseSeeder
+type ClassScheduleSeeder struct{}
+
+func (s *ClassScheduleSeeder) GetName() string {
+	return "Class Schedules"
 }
 
-func (s *ClassScheduleSeeder) Run(db *gorm.DB) error {
-	if DataExists(db, &models.ClassSchedule{}, "day_of_week = ?", "senin") {
+func (s *ClassScheduleSeeder) Seed(db *gorm.DB) error {
+	var count int64
+	if err := db.Model(&models.ClassSchedule{}).Count(&count).Error; err != nil {
+		return err
+	}
+
+	if count > 0 {
 		return nil
 	}
 
-	var classes []models.Class
-	db.Preload("School").Find(&classes)
-
-	days := []string{"senin", "selasa", "rabu", "kamis", "jumat"}
-	timeSlots := []struct {
-		start string
-		end   string
-	}{
-		{"07:30:00", "08:15:00"},
-		{"08:15:00", "09:00:00"},
-		{"09:15:00", "10:00:00"},
-		{"10:00:00", "10:45:00"},
-		{"11:00:00", "11:45:00"},
-		{"12:30:00", "13:15:00"},
-		{"13:15:00", "14:00:00"},
-		{"14:00:00", "14:45:00"},
+	var class models.Class
+	if err := db.First(&class).Error; err != nil {
+		return err
 	}
 
-	for _, class := range classes {
-		var subjects []models.Subject
-		db.Where("school_id = ?", class.School.ID).Find(&subjects)
-
-		var teachers []models.Teacher
-		db.Where("school_id = ?", class.School.ID).Find(&teachers)
-
-		if len(subjects) == 0 || len(teachers) == 0 {
-			continue
-		}
-
-		subjectIndex := 0
-		teacherIndex := 0
-
-		for _, day := range days {
-			for i, slot := range timeSlots {
-				if i >= 6 { // Max 6 slots per day
-					break
-				}
-
-				// Create TimeOnly from string
-				startTime, err := models.NewTimeOnlyFromString(slot.start)
-				if err != nil {
-					continue
-				}
-
-				endTime, err := models.NewTimeOnlyFromString(slot.end)
-				if err != nil {
-					continue
-				}
-
-				schedule := models.ClassSchedule{
-					ClassID:      class.ID,
-					SubjectID:    subjects[subjectIndex%len(subjects)].ID,
-					TeacherID:    teachers[teacherIndex%len(teachers)].ID,
-					DayOfWeek:    day,
-					StartTime:    startTime,
-					EndTime:      endTime,
-					Room:         stringPtr(fmt.Sprintf("R-%s-%d", class.Name, i+1)),
-					AcademicYear: "2024/2025",
-					Semester:     "ganjil",
-					IsActive:     true,
-				}
-
-				if err := db.Create(&schedule).Error; err != nil {
-					return fmt.Errorf("failed to create schedule for class %s: %v", class.Name, err)
-				}
-
-				subjectIndex++
-				teacherIndex++
-			}
-		}
+	var subjects []models.Subject
+	if err := db.Limit(5).Find(&subjects).Error; err != nil {
+		return err
 	}
 
-	return nil
+	var teachers []models.Teacher
+	if err := db.Limit(3).Find(&teachers).Error; err != nil {
+		return err
+	}
+
+	if len(subjects) == 0 || len(teachers) == 0 {
+		return nil
+	}
+
+	startTime1, _ := time.Parse("15:04:05", "07:30:00")
+	endTime1, _ := time.Parse("15:04:05", "09:00:00")
+	startTime2, _ := time.Parse("15:04:05", "09:15:00")
+	endTime2, _ := time.Parse("15:04:05", "10:45:00")
+
+	schedules := []models.ClassSchedule{
+		{
+			ClassID:      class.ID,
+			SubjectID:    subjects[0].ID,
+			TeacherID:    teachers[0].ID,
+			DayOfWeek:    "senin",
+			StartTime:    startTime1,
+			EndTime:      endTime1,
+			Room:         stringPtr("Lab RPL 1"),
+			AcademicYear: "2024/2025",
+			Semester:     "ganjil",
+			IsActive:     true,
+		},
+		{
+			ClassID:      class.ID,
+			SubjectID:    subjects[1].ID,
+			TeacherID:    teachers[1].ID,
+			DayOfWeek:    "senin",
+			StartTime:    startTime2,
+			EndTime:      endTime2,
+			Room:         stringPtr("Ruang 101"),
+			AcademicYear: "2024/2025",
+			Semester:     "ganjil",
+			IsActive:     true,
+		},
+	}
+
+	return db.Create(&schedules).Error
 }

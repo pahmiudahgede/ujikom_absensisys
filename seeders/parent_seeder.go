@@ -7,47 +7,49 @@ import (
 	"gorm.io/gorm"
 )
 
-type ParentSeeder struct {
-	BaseSeeder
+type ParentSeeder struct{}
+
+func (s *ParentSeeder) GetName() string {
+	return "Parents"
 }
 
-func (s *ParentSeeder) Run(db *gorm.DB) error {
-	if DataExists(db, &models.Parent{}, "sebagai = ?", "ayah") {
+func (s *ParentSeeder) Seed(db *gorm.DB) error {
+	var count int64
+	if err := db.Model(&models.Parent{}).Count(&count).Error; err != nil {
+		return err
+	}
+
+	if count > 0 {
 		return nil
 	}
 
 	var students []models.Student
-	if err := db.Limit(100).Find(&students).Error; err != nil {
+	if err := db.Limit(5).Find(&students).Error; err != nil {
 		return err
 	}
 
-	jobs := []string{"PNS", "Swasta", "Wiraswasta", "Petani", "Guru", "Dokter", "Pedagang", "Buruh"}
-
+	parents := []models.Parent{}
 	for i, student := range students {
-
+		// Father
 		father := models.Parent{
 			StudentID: student.ID,
-			Fullname:  fmt.Sprintf("Ayah %s", student.Fullname),
-			Phone:     fmt.Sprintf("0813%07d", i+1000000),
-			Job:       jobs[i%len(jobs)],
-			Sebagai:   "ayah",
+			Fullname:  fmt.Sprintf("Bapak Siswa %d", i+1),
+			Phone:     fmt.Sprintf("08111111%03d", i+1),
+			Job:       "Pegawai Swasta",
+			Relation:  "ayah",
 		}
 
+		// Mother
 		mother := models.Parent{
 			StudentID: student.ID,
-			Fullname:  fmt.Sprintf("Ibu %s", student.Fullname),
-			Phone:     fmt.Sprintf("0814%07d", i+1000000),
-			Job:       jobs[(i+1)%len(jobs)],
-			Sebagai:   "ibu",
+			Fullname:  fmt.Sprintf("Ibu Siswa %d", i+1),
+			Phone:     fmt.Sprintf("08222222%03d", i+1),
+			Job:       "Ibu Rumah Tangga",
+			Relation:  "ibu",
 		}
 
-		if err := db.Create(&father).Error; err != nil {
-			return err
-		}
-		if err := db.Create(&mother).Error; err != nil {
-			return err
-		}
+		parents = append(parents, father, mother)
 	}
 
-	return nil
+	return db.Create(&parents).Error
 }

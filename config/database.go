@@ -1,12 +1,13 @@
 package config
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"os"
 	"time"
 
-	"gorm.io/driver/mysql"
+	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 )
@@ -16,25 +17,25 @@ var DB *gorm.DB
 func ConnectDatabase() {
 	var err error
 
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local&sql_mode=''",
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=UTC",
+		os.Getenv("DB_HOST"),
 		os.Getenv("DB_USER"),
 		os.Getenv("DB_PASSWORD"),
-		os.Getenv("DB_HOST"),
-		os.Getenv("DB_PORT"),
 		os.Getenv("DB_NAME"),
+		os.Getenv("DB_PORT"),
 	)
 
 	config := &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Info),
 		NowFunc: func() time.Time {
-			return time.Now().Local()
+			return time.Now().UTC()
 		},
-		DisableForeignKeyConstraintWhenMigrating: true,
+		DisableForeignKeyConstraintWhenMigrating: false,
 	}
 
-	DB, err = gorm.Open(mysql.Open(dsn), config)
+	DB, err = gorm.Open(postgres.Open(dsn), config)
 	if err != nil {
-		log.Fatal("Failed to connect to database:", err)
+		log.Fatal("Failed to connect to PostgreSQL database:", err)
 	}
 
 	sqlDB, err := DB.DB()
@@ -46,8 +47,20 @@ func ConnectDatabase() {
 	sqlDB.SetMaxOpenConns(100)
 	sqlDB.SetConnMaxLifetime(time.Hour)
 
-	DB.Exec("SET sql_mode = ''")
-	DB.Exec("SET time_zone = '+00:00'")
+	if err := DB.Exec("CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\"").Error; err != nil {
+		log.Printf("Warning: Could not create uuid-ossp extension: %v", err)
+	}
 
-	log.Println("✅ Database connected successfully!")
+	if err := DB.Exec("SET TIME ZONE 'UTC'").Error; err != nil {
+		log.Printf("Warning: Could not set timezone: %v", err)
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	if err := sqlDB.PingContext(ctx); err != nil {
+		log.Fatal("Failed to ping PostgreSQL database:", err)
+	}
+
+	log.Println("✅ PostgreSQL database connected successfully!")
 }

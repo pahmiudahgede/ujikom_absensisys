@@ -1,72 +1,90 @@
-// ===== seeders/class_seeder.go =====
 package seeders
 
 import (
 	"absensibe/models"
-	"fmt"
 
 	"gorm.io/gorm"
 )
 
-type ClassSeeder struct {
-	BaseSeeder
+type ClassSeeder struct{}
+
+func (s *ClassSeeder) GetName() string {
+	return "Classes"
 }
 
-func (s *ClassSeeder) Run(db *gorm.DB) error {
-	// Skip if data already exists
-	if DataExists(db, &models.Class{}, "name = ?", "X-RPL-1") {
-		return nil
-	}
-
-	// Get schools with their jurusan
-	var schools []models.School
-	if err := db.Preload("Jurusan").Find(&schools).Error; err != nil {
+func (s *ClassSeeder) Seed(db *gorm.DB) error {
+	var count int64
+	if err := db.Model(&models.Class{}).Count(&count).Error; err != nil {
 		return err
 	}
 
-	if len(schools) == 0 {
+	if count > 0 {
 		return nil
 	}
 
-	grades := []string{"X", "XI", "XII"}
-	academicYear := "2024/2025"
-
-	for _, school := range schools {
-		// Get teachers for homeroom assignment
-		var teachers []models.Teacher
-		db.Where("school_id = ?", school.ID).Find(&teachers)
-
-		teacherIndex := 0
-
-		for _, jurusan := range school.Jurusan {
-			// Create 2 classes per grade per jurusan
-			for _, grade := range grades {
-				for classNum := 1; classNum <= 2; classNum++ {
-					className := fmt.Sprintf("%s-%s-%d", grade, jurusan.Code, classNum)
-
-					class := models.Class{
-						Name:         className,
-						Grade:        grade,
-						JurusanID:    jurusan.ID,
-						SchoolID:     school.ID,
-						MaxStudents:  36,
-						AcademicYear: academicYear,
-						IsActive:     true,
-					}
-
-					// Assign homeroom teacher if available
-					if teacherIndex < len(teachers) {
-						class.HomeroomTeacherID = &teachers[teacherIndex].ID
-						teacherIndex = (teacherIndex + 1) % len(teachers)
-					}
-
-					if err := db.Create(&class).Error; err != nil {
-						return err
-					}
-				}
-			}
-		}
+	var school models.School
+	if err := db.First(&school).Error; err != nil {
+		return err
 	}
 
-	return nil
+	var majors []models.Major
+	if err := db.Find(&majors).Error; err != nil {
+		return err
+	}
+
+	var teachers []models.Teacher
+	if err := db.Find(&teachers).Error; err != nil {
+		return err
+	}
+
+	if len(majors) == 0 || len(teachers) == 0 {
+		return nil
+	}
+
+	classes := []models.Class{
+		{
+			Name:              "X-RPL-1",
+			Grade:             "X",
+			MajorID:           majors[0].ID, // RPL
+			SchoolID:          school.ID,
+			HomeroomTeacherID: &teachers[0].ID,
+			MaxStudents:       36,
+			AcademicYear:      "2024/2025",
+			IsActive:          true,
+		},
+		{
+			Name:              "X-RPL-2",
+			Grade:             "X",
+			MajorID:           majors[0].ID, // RPL
+			SchoolID:          school.ID,
+			HomeroomTeacherID: &teachers[1].ID,
+			MaxStudents:       36,
+			AcademicYear:      "2024/2025",
+			IsActive:          true,
+		},
+		{
+			Name:              "XI-RPL-1",
+			Grade:             "XI",
+			MajorID:           majors[0].ID, // RPL
+			SchoolID:          school.ID,
+			HomeroomTeacherID: &teachers[2].ID,
+			MaxStudents:       36,
+			AcademicYear:      "2024/2025",
+			IsActive:          true,
+		},
+	}
+
+	if len(majors) > 1 {
+		classes = append(classes, models.Class{
+			Name:         "X-TKJ-1",
+			Grade:        "X",
+			MajorID:      majors[1].ID, // TKJ
+			SchoolID:     school.ID,
+			MaxStudents:  36,
+			AcademicYear: "2024/2025",
+			IsActive:     true,
+		})
+	}
+
+	return db.Create(&classes).Error
 }
