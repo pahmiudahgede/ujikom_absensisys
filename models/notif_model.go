@@ -36,7 +36,6 @@ type AttendanceSettings struct {
 	CreatedAt       time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
 	UpdatedAt       time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"updated_at"`
 
-	// Relations
 	School *School `json:"school,omitempty" gorm:"foreignKey:SchoolID"`
 }
 
