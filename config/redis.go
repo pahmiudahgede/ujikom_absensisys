@@ -27,7 +27,6 @@ func ConnectRedis() {
 		DB:       db,
 	})
 
-	// Test connection
 	ctx := context.Background()
 	pong, err := Redis.Ping(ctx).Result()
 	if err != nil {
