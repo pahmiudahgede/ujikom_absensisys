@@ -7,8 +7,8 @@ type ClassSchedule struct {
 	ClassID      string    `gorm:"type:uuid;not null;uniqueIndex:idx_class_schedule;constraint:OnDelete:CASCADE" json:"class_id"`
 	SubjectID    string    `gorm:"type:uuid;not null;index;constraint:OnDelete:CASCADE" json:"subject_id"`
 	TeacherID    string    `gorm:"type:uuid;not null;index;constraint:OnDelete:CASCADE" json:"teacher_id"`
-	DayOfWeek    string    `gorm:"type:varchar(10);not null;uniqueIndex:idx_class_schedule;check:day_of_week IN ('senin','selasa','rabu','kamis','jumat','sabtu')" json:"day_of_week"`
-	StartTime    time.Time `gorm:"type:time;not null;uniqueIndex:idx_class_schedule;comment:'Jam mulai pelajaran'" json:"start_time"`
+	DayOfWeek    string    `gorm:"type:varchar(10);not null;uniqueIndex:idx_class_schedule;index:idx_day_time;check:day_of_week IN ('senin','selasa','rabu','kamis','jumat','sabtu')" json:"day_of_week"`
+	StartTime    time.Time `gorm:"type:time;not null;uniqueIndex:idx_class_schedule;index:idx_day_time;comment:'Jam mulai pelajaran'" json:"start_time"`
 	EndTime      time.Time `gorm:"type:time;not null;comment:'Jam selesai pelajaran'" json:"end_time"`
 	Room         *string   `gorm:"type:varchar(50);comment:'Ruang kelas'" json:"room"`
 	AcademicYear string    `gorm:"type:varchar(10);not null;index" json:"academic_year"`
@@ -18,10 +18,9 @@ type ClassSchedule struct {
 	UpdatedAt    time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"updated_at"`
 
 	// Relations
-	Class         *Class         `json:"class,omitempty" gorm:"foreignKey:ClassID"`
-	Subject       *Subject       `json:"subject,omitempty" gorm:"foreignKey:SubjectID"`
-	Teacher       *Teacher       `json:"teacher,omitempty" gorm:"foreignKey:TeacherID"`
-	ClassSessions []ClassSession `json:"class_sessions,omitempty" gorm:"foreignKey:ScheduleID"`
+	Class   *Class   `json:"class,omitempty" gorm:"foreignKey:ClassID"`
+	Subject *Subject `json:"subject,omitempty" gorm:"foreignKey:SubjectID"`
+	Teacher *Teacher `json:"teacher,omitempty" gorm:"foreignKey:TeacherID"`
 }
 
 func (ClassSchedule) TableName() string {

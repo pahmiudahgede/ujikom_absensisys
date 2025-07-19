@@ -2,56 +2,36 @@ package seeders
 
 import (
 	"absensibe/models"
-	"time"
+	"log"
 
 	"gorm.io/gorm"
 )
 
-type SchoolSeeder struct{}
-
-func (s *SchoolSeeder) GetName() string {
-	return "Schools"
-}
-
-func (s *SchoolSeeder) Seed(db *gorm.DB) error {
-	// Check if schools already exist
-	var count int64
-	if err := db.Model(&models.School{}).Count(&count).Error; err != nil {
-		return err
-	}
-
-	if count > 0 {
-		return nil // Skip if data exists
-	}
-
-	standFrom := time.Date(1985, 7, 15, 0, 0, 0, 0, time.UTC)
+func SeedSchools(db *gorm.DB) error {
+	log.Println("🏫 Seeding schools...")
 
 	schools := []models.School{
 		{
-			NPSN:          "20401234",
-			Name:          "SMK Negeri 1 Jakarta",
-			Email:         "smkn1jakarta@education.go.id",
-			Phone:         "021-1234567",
-			Fax:           stringPtr("021-1234568"),
-			Website:       stringPtr("https://smkn1jakarta.sch.id"),
-			StandFrom:     &standFrom,
-			Akreditasi:    "A",
-			KepalaSekolah: stringPtr("Dr. Ahmad Susanto, M.Pd"),
-			IsActive:      true,
-		},
-		{
-			NPSN:          "20401235",
-			Name:          "SMK Negeri 2 Jakarta",
-			Email:         "smkn2jakarta@education.go.id",
-			Phone:         "021-2345678",
-			Fax:           stringPtr("021-2345679"),
-			Website:       stringPtr("https://smkn2jakarta.sch.id"),
-			StandFrom:     &standFrom,
-			Akreditasi:    "A",
-			KepalaSekolah: stringPtr("Dra. Siti Nurhaliza, M.M"),
-			IsActive:      true,
+			ID:        "550e8400-e29b-41d4-a716-446655440001",
+			NPSN:      "20123456",
+			Name:      "SMK Negeri 1 Bandung",
+			Email:     "info@smkn1bandung.sch.id",
+			Phone:     "022-7234567",
+			Website:   stringPtr("https://smkn1bandung.sch.id"),
+			Address:   "Jl. Wastukancana No.3, Bandung Wetan, Kec. Bandung Wetan, Kota Bandung, Jawa Barat 40115",
+			Principal: "Dr. Ahmad Susanto, S.Pd., M.Pd.",
+			Latitude:  -6.9174,
+			Longitude: 107.6191,
+			IsActive:  true,
 		},
 	}
 
-	return db.Create(&schools).Error
+	for _, school := range schools {
+		if err := db.FirstOrCreate(&school, models.School{NPSN: school.NPSN}).Error; err != nil {
+			return err
+		}
+	}
+
+	log.Printf("✅ Successfully seeded %d schools", len(schools))
+	return nil
 }

@@ -2,89 +2,33 @@ package seeders
 
 import (
 	"absensibe/models"
+	"log"
 
 	"gorm.io/gorm"
 )
 
-type ClassSeeder struct{}
-
-func (s *ClassSeeder) GetName() string {
-	return "Classes"
-}
-
-func (s *ClassSeeder) Seed(db *gorm.DB) error {
-	var count int64
-	if err := db.Model(&models.Class{}).Count(&count).Error; err != nil {
-		return err
-	}
-
-	if count > 0 {
-		return nil
-	}
-
-	var school models.School
-	if err := db.First(&school).Error; err != nil {
-		return err
-	}
-
-	var majors []models.Major
-	if err := db.Find(&majors).Error; err != nil {
-		return err
-	}
-
-	var teachers []models.Teacher
-	if err := db.Find(&teachers).Error; err != nil {
-		return err
-	}
-
-	if len(majors) == 0 || len(teachers) == 0 {
-		return nil
-	}
+func SeedClasses(db *gorm.DB) error {
+	log.Println("🎓 Seeding classes...")
 
 	classes := []models.Class{
 		{
-			Name:              "X-RPL-1",
-			Grade:             "X",
-			MajorID:           majors[0].ID, // RPL
-			SchoolID:          school.ID,
-			HomeroomTeacherID: &teachers[0].ID,
-			MaxStudents:       36,
-			AcademicYear:      "2024/2025",
-			IsActive:          true,
-		},
-		{
-			Name:              "X-RPL-2",
-			Grade:             "X",
-			MajorID:           majors[0].ID, // RPL
-			SchoolID:          school.ID,
-			HomeroomTeacherID: &teachers[1].ID,
-			MaxStudents:       36,
-			AcademicYear:      "2024/2025",
-			IsActive:          true,
-		},
-		{
-			Name:              "XI-RPL-1",
+			ID:                "550e8400-e29b-41d4-a716-446655440030",
+			Name:              "XI TBSM 1",
 			Grade:             "XI",
-			MajorID:           majors[0].ID, // RPL
-			SchoolID:          school.ID,
-			HomeroomTeacherID: &teachers[2].ID,
-			MaxStudents:       36,
+			Major:             "TBSM",
+			SchoolID:          "550e8400-e29b-41d4-a716-446655440001",
+			HomeroomTeacherID: stringPtr("550e8400-e29b-41d4-a716-446655440012"), // MAWARDI,S.Pd sebagai wali kelas
 			AcademicYear:      "2024/2025",
 			IsActive:          true,
 		},
 	}
 
-	if len(majors) > 1 {
-		classes = append(classes, models.Class{
-			Name:         "X-TKJ-1",
-			Grade:        "X",
-			MajorID:      majors[1].ID, // TKJ
-			SchoolID:     school.ID,
-			MaxStudents:  36,
-			AcademicYear: "2024/2025",
-			IsActive:     true,
-		})
+	for _, class := range classes {
+		if err := db.FirstOrCreate(&class, models.Class{Name: class.Name, AcademicYear: class.AcademicYear}).Error; err != nil {
+			return err
+		}
 	}
 
-	return db.Create(&classes).Error
+	log.Printf("✅ Successfully seeded %d classes", len(classes))
+	return nil
 }

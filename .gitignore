@@ -7,6 +7,9 @@
 main
 absensi_be
 
+# private
+generate_code_custom.sh
+
 # Test binary
 *.test
 *.out
@@ -45,3 +48,7 @@ Thumbs.db
 
 # Cache
 .cache/
+
+# storage
+public/assets/teacherpict
+public/assets/data

@@ -2,51 +2,35 @@ package seeders
 
 import (
 	"absensibe/models"
+	"log"
 
 	"gorm.io/gorm"
 )
 
-type SafeAreaSeeder struct{}
-
-func (s *SafeAreaSeeder) GetName() string {
-	return "Safe Areas"
-}
-
-func (s *SafeAreaSeeder) Seed(db *gorm.DB) error {
-	var count int64
-	if err := db.Model(&models.SafeArea{}).Count(&count).Error; err != nil {
-		return err
-	}
-
-	if count > 0 {
-		return nil
-	}
-
-	var school models.School
-	if err := db.First(&school).Error; err != nil {
-		return err
-	}
+func SeedSafeAreas(db *gorm.DB) error {
+	log.Println("🛡️ Seeding safe areas...")
 
 	safeAreas := []models.SafeArea{
 		{
-			SchoolID:    school.ID,
+			SchoolID:    "550e8400-e29b-41d4-a716-446655440001",
 			Name:        "Area Sekolah Utama",
-			Latitude:    -6.1751,
-			Longitude:   106.8650,
-			Radius:      100.0,
-			Description: stringPtr("Area utama sekolah dengan radius 100 meter"),
-			IsActive:    true,
-		},
-		{
-			SchoolID:    school.ID,
-			Name:        "Area Parkir",
-			Latitude:    -6.1755,
-			Longitude:   106.8655,
-			Radius:      50.0,
-			Description: stringPtr("Area parkir sekolah"),
+			Latitude:    -6.9174,
+			Longitude:   107.6191,
+			Radius:      150.0,
+			Description: stringPtr("Area utama sekolah untuk absensi siswa"),
 			IsActive:    true,
 		},
 	}
 
-	return db.Create(&safeAreas).Error
+	for _, safeArea := range safeAreas {
+		if err := db.FirstOrCreate(&safeArea, models.SafeArea{
+			SchoolID: safeArea.SchoolID,
+			Name:     safeArea.Name,
+		}).Error; err != nil {
+			return err
+		}
+	}
+
+	log.Printf("✅ Successfully seeded %d safe areas", len(safeAreas))
+	return nil
 }

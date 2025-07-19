@@ -2,77 +2,524 @@ package seeders
 
 import (
 	"absensibe/models"
-	"time"
+	"log"
 
 	"gorm.io/gorm"
 )
 
-type ClassScheduleSeeder struct{}
-
-func (s *ClassScheduleSeeder) GetName() string {
-	return "Class Schedules"
-}
-
-func (s *ClassScheduleSeeder) Seed(db *gorm.DB) error {
-	var count int64
-	if err := db.Model(&models.ClassSchedule{}).Count(&count).Error; err != nil {
-		return err
-	}
-
-	if count > 0 {
-		return nil
-	}
-
-	var class models.Class
-	if err := db.First(&class).Error; err != nil {
-		return err
-	}
-
-	var subjects []models.Subject
-	if err := db.Limit(5).Find(&subjects).Error; err != nil {
-		return err
-	}
-
-	var teachers []models.Teacher
-	if err := db.Limit(3).Find(&teachers).Error; err != nil {
-		return err
-	}
-
-	if len(subjects) == 0 || len(teachers) == 0 {
-		return nil
-	}
-
-	startTime1, _ := time.Parse("15:04:05", "07:30:00")
-	endTime1, _ := time.Parse("15:04:05", "09:00:00")
-	startTime2, _ := time.Parse("15:04:05", "09:15:00")
-	endTime2, _ := time.Parse("15:04:05", "10:45:00")
+func SeedClassSchedules(db *gorm.DB) error {
+	log.Println("📅 Seeding class schedules...")
 
 	schedules := []models.ClassSchedule{
+
 		{
-			ClassID:      class.ID,
-			SubjectID:    subjects[0].ID,
-			TeacherID:    teachers[0].ID,
+			ID:           "550e8400-e29b-41d4-a716-446655440050",
+			ClassID:      "550e8400-e29b-41d4-a716-446655440030",
+			SubjectID:    "550e8400-e29b-41d4-a716-446655440030",
+			TeacherID:    "550e8400-e29b-41d4-a716-446655440010",
 			DayOfWeek:    "senin",
-			StartTime:    startTime1,
-			EndTime:      endTime1,
-			Room:         stringPtr("Lab RPL 1"),
+			StartTime:    parseTime("07:30"),
+			EndTime:      parseTime("08:15"),
+			Room:         stringPtr("Lapangan Upacara"),
 			AcademicYear: "2024/2025",
 			Semester:     "ganjil",
 			IsActive:     true,
 		},
 		{
-			ClassID:      class.ID,
-			SubjectID:    subjects[1].ID,
-			TeacherID:    teachers[1].ID,
+			ID:           "550e8400-e29b-41d4-a716-446655440051",
+			ClassID:      "550e8400-e29b-41d4-a716-446655440030",
+			SubjectID:    "550e8400-e29b-41d4-a716-446655440021",
+			TeacherID:    "550e8400-e29b-41d4-a716-446655440013",
 			DayOfWeek:    "senin",
-			StartTime:    startTime2,
-			EndTime:      endTime2,
-			Room:         stringPtr("Ruang 101"),
+			StartTime:    parseTime("08:15"),
+			EndTime:      parseTime("09:00"),
+			Room:         stringPtr("XI-1"),
+			AcademicYear: "2024/2025",
+			Semester:     "ganjil",
+			IsActive:     true,
+		},
+
+		{
+			ID:           "550e8400-e29b-41d4-a716-446655440052",
+			ClassID:      "550e8400-e29b-41d4-a716-446655440030",
+			SubjectID:    "550e8400-e29b-41d4-a716-446655440021",
+			TeacherID:    "550e8400-e29b-41d4-a716-446655440013",
+			DayOfWeek:    "senin",
+			StartTime:    parseTime("09:15"),
+			EndTime:      parseTime("10:00"),
+			Room:         stringPtr("XI-1"),
+			AcademicYear: "2024/2025",
+			Semester:     "ganjil",
+			IsActive:     true,
+		},
+		{
+			ID:           "550e8400-e29b-41d4-a716-446655440053",
+			ClassID:      "550e8400-e29b-41d4-a716-446655440030",
+			SubjectID:    "550e8400-e29b-41d4-a716-446655440021",
+			TeacherID:    "550e8400-e29b-41d4-a716-446655440013",
+			DayOfWeek:    "senin",
+			StartTime:    parseTime("10:00"),
+			EndTime:      parseTime("10:45"),
+			Room:         stringPtr("XI-1"),
+			AcademicYear: "2024/2025",
+			Semester:     "ganjil",
+			IsActive:     true,
+		},
+		{
+			ID:           "550e8400-e29b-41d4-a716-446655440054",
+			ClassID:      "550e8400-e29b-41d4-a716-446655440030",
+			SubjectID:    "550e8400-e29b-41d4-a716-446655440027",
+			TeacherID:    "550e8400-e29b-41d4-a716-446655440018",
+			DayOfWeek:    "senin",
+			StartTime:    parseTime("10:45"),
+			EndTime:      parseTime("11:30"),
+			Room:         stringPtr("Workshop"),
+			AcademicYear: "2024/2025",
+			Semester:     "ganjil",
+			IsActive:     true,
+		},
+
+		{
+			ID:           "550e8400-e29b-41d4-a716-446655440055",
+			ClassID:      "550e8400-e29b-41d4-a716-446655440030",
+			SubjectID:    "550e8400-e29b-41d4-a716-446655440027",
+			TeacherID:    "550e8400-e29b-41d4-a716-446655440018",
+			DayOfWeek:    "senin",
+			StartTime:    parseTime("12:30"),
+			EndTime:      parseTime("13:15"),
+			Room:         stringPtr("Workshop"),
+			AcademicYear: "2024/2025",
+			Semester:     "ganjil",
+			IsActive:     true,
+		},
+		{
+			ID:           "550e8400-e29b-41d4-a716-446655440056",
+			ClassID:      "550e8400-e29b-41d4-a716-446655440030",
+			SubjectID:    "550e8400-e29b-41d4-a716-446655440027",
+			TeacherID:    "550e8400-e29b-41d4-a716-446655440018",
+			DayOfWeek:    "senin",
+			StartTime:    parseTime("13:15"),
+			EndTime:      parseTime("14:00"),
+			Room:         stringPtr("Workshop"),
+			AcademicYear: "2024/2025",
+			Semester:     "ganjil",
+			IsActive:     true,
+		},
+		{
+			ID:           "550e8400-e29b-41d4-a716-446655440057",
+			ClassID:      "550e8400-e29b-41d4-a716-446655440030",
+			SubjectID:    "550e8400-e29b-41d4-a716-446655440027",
+			TeacherID:    "550e8400-e29b-41d4-a716-446655440018",
+			DayOfWeek:    "senin",
+			StartTime:    parseTime("14:00"),
+			EndTime:      parseTime("14:45"),
+			Room:         stringPtr("Workshop"),
+			AcademicYear: "2024/2025",
+			Semester:     "ganjil",
+			IsActive:     true,
+		},
+
+		{
+			ID:           "550e8400-e29b-41d4-a716-446655440058",
+			ClassID:      "550e8400-e29b-41d4-a716-446655440030",
+			SubjectID:    "550e8400-e29b-41d4-a716-446655440025",
+			TeacherID:    "550e8400-e29b-41d4-a716-446655440012",
+			DayOfWeek:    "selasa",
+			StartTime:    parseTime("07:30"),
+			EndTime:      parseTime("08:15"),
+			Room:         stringPtr("Lapangan"),
+			AcademicYear: "2024/2025",
+			Semester:     "ganjil",
+			IsActive:     true,
+		},
+		{
+			ID:           "550e8400-e29b-41d4-a716-446655440059",
+			ClassID:      "550e8400-e29b-41d4-a716-446655440030",
+			SubjectID:    "550e8400-e29b-41d4-a716-446655440025",
+			TeacherID:    "550e8400-e29b-41d4-a716-446655440012",
+			DayOfWeek:    "selasa",
+			StartTime:    parseTime("08:15"),
+			EndTime:      parseTime("09:00"),
+			Room:         stringPtr("Lapangan"),
+			AcademicYear: "2024/2025",
+			Semester:     "ganjil",
+			IsActive:     true,
+		},
+
+		{
+			ID:           "550e8400-e29b-41d4-a716-446655440060",
+			ClassID:      "550e8400-e29b-41d4-a716-446655440030",
+			SubjectID:    "550e8400-e29b-41d4-a716-446655440027",
+			TeacherID:    "550e8400-e29b-41d4-a716-446655440018",
+			DayOfWeek:    "selasa",
+			StartTime:    parseTime("09:15"),
+			EndTime:      parseTime("10:00"),
+			Room:         stringPtr("Workshop"),
+			AcademicYear: "2024/2025",
+			Semester:     "ganjil",
+			IsActive:     true,
+		},
+		{
+			ID:           "550e8400-e29b-41d4-a716-446655440061",
+			ClassID:      "550e8400-e29b-41d4-a716-446655440030",
+			SubjectID:    "550e8400-e29b-41d4-a716-446655440027",
+			TeacherID:    "550e8400-e29b-41d4-a716-446655440018",
+			DayOfWeek:    "selasa",
+			StartTime:    parseTime("10:00"),
+			EndTime:      parseTime("10:45"),
+			Room:         stringPtr("Workshop"),
+			AcademicYear: "2024/2025",
+			Semester:     "ganjil",
+			IsActive:     true,
+		},
+		{
+			ID:           "550e8400-e29b-41d4-a716-446655440062",
+			ClassID:      "550e8400-e29b-41d4-a716-446655440030",
+			SubjectID:    "550e8400-e29b-41d4-a716-446655440027",
+			TeacherID:    "550e8400-e29b-41d4-a716-446655440018",
+			DayOfWeek:    "selasa",
+			StartTime:    parseTime("10:45"),
+			EndTime:      parseTime("11:30"),
+			Room:         stringPtr("Workshop"),
+			AcademicYear: "2024/2025",
+			Semester:     "ganjil",
+			IsActive:     true,
+		},
+
+		{
+			ID:           "550e8400-e29b-41d4-a716-446655440063",
+			ClassID:      "550e8400-e29b-41d4-a716-446655440030",
+			SubjectID:    "550e8400-e29b-41d4-a716-446655440022",
+			TeacherID:    "550e8400-e29b-41d4-a716-446655440018",
+			DayOfWeek:    "selasa",
+			StartTime:    parseTime("12:30"),
+			EndTime:      parseTime("13:15"),
+			Room:         stringPtr("XI-1"),
+			AcademicYear: "2024/2025",
+			Semester:     "ganjil",
+			IsActive:     true,
+		},
+		{
+			ID:           "550e8400-e29b-41d4-a716-446655440064",
+			ClassID:      "550e8400-e29b-41d4-a716-446655440030",
+			SubjectID:    "550e8400-e29b-41d4-a716-446655440022",
+			TeacherID:    "550e8400-e29b-41d4-a716-446655440018",
+			DayOfWeek:    "selasa",
+			StartTime:    parseTime("13:15"),
+			EndTime:      parseTime("14:00"),
+			Room:         stringPtr("XI-1"),
+			AcademicYear: "2024/2025",
+			Semester:     "ganjil",
+			IsActive:     true,
+		},
+		{
+			ID:           "550e8400-e29b-41d4-a716-446655440065",
+			ClassID:      "550e8400-e29b-41d4-a716-446655440030",
+			SubjectID:    "550e8400-e29b-41d4-a716-446655440022",
+			TeacherID:    "550e8400-e29b-41d4-a716-446655440018",
+			DayOfWeek:    "selasa",
+			StartTime:    parseTime("14:00"),
+			EndTime:      parseTime("14:45"),
+			Room:         stringPtr("XI-1"),
+			AcademicYear: "2024/2025",
+			Semester:     "ganjil",
+			IsActive:     true,
+		},
+
+		{
+			ID:           "550e8400-e29b-41d4-a716-446655440066",
+			ClassID:      "550e8400-e29b-41d4-a716-446655440030",
+			SubjectID:    "550e8400-e29b-41d4-a716-446655440024",
+			TeacherID:    "550e8400-e29b-41d4-a716-446655440014",
+			DayOfWeek:    "rabu",
+			StartTime:    parseTime("07:30"),
+			EndTime:      parseTime("08:15"),
+			Room:         stringPtr("XI-1"),
+			AcademicYear: "2024/2025",
+			Semester:     "ganjil",
+			IsActive:     true,
+		},
+		{
+			ID:           "550e8400-e29b-41d4-a716-446655440067",
+			ClassID:      "550e8400-e29b-41d4-a716-446655440030",
+			SubjectID:    "550e8400-e29b-41d4-a716-446655440024",
+			TeacherID:    "550e8400-e29b-41d4-a716-446655440014",
+			DayOfWeek:    "rabu",
+			StartTime:    parseTime("08:15"),
+			EndTime:      parseTime("09:00"),
+			Room:         stringPtr("XI-1"),
+			AcademicYear: "2024/2025",
+			Semester:     "ganjil",
+			IsActive:     true,
+		},
+
+		{
+			ID:           "550e8400-e29b-41d4-a716-446655440068",
+			ClassID:      "550e8400-e29b-41d4-a716-446655440030",
+			SubjectID:    "550e8400-e29b-41d4-a716-446655440024",
+			TeacherID:    "550e8400-e29b-41d4-a716-446655440014",
+			DayOfWeek:    "rabu",
+			StartTime:    parseTime("09:15"),
+			EndTime:      parseTime("10:00"),
+			Room:         stringPtr("XI-1"),
+			AcademicYear: "2024/2025",
+			Semester:     "ganjil",
+			IsActive:     true,
+		},
+		{
+			ID:           "550e8400-e29b-41d4-a716-446655440069",
+			ClassID:      "550e8400-e29b-41d4-a716-446655440030",
+			SubjectID:    "550e8400-e29b-41d4-a716-446655440028",
+			TeacherID:    "550e8400-e29b-41d4-a716-446655440019",
+			DayOfWeek:    "rabu",
+			StartTime:    parseTime("10:00"),
+			EndTime:      parseTime("10:45"),
+			Room:         stringPtr("Workshop"),
+			AcademicYear: "2024/2025",
+			Semester:     "ganjil",
+			IsActive:     true,
+		},
+
+		{
+			ID:           "550e8400-e29b-41d4-a716-446655440070",
+			ClassID:      "550e8400-e29b-41d4-a716-446655440030",
+			SubjectID:    "550e8400-e29b-41d4-a716-446655440029",
+			TeacherID:    "550e8400-e29b-41d4-a716-446655440015",
+			DayOfWeek:    "kamis",
+			StartTime:    parseTime("07:30"),
+			EndTime:      parseTime("08:15"),
+			Room:         stringPtr("Lab Listrik"),
+			AcademicYear: "2024/2025",
+			Semester:     "ganjil",
+			IsActive:     true,
+		},
+		{
+			ID:           "550e8400-e29b-41d4-a716-446655440071",
+			ClassID:      "550e8400-e29b-41d4-a716-446655440030",
+			SubjectID:    "550e8400-e29b-41d4-a716-446655440029",
+			TeacherID:    "550e8400-e29b-41d4-a716-446655440015",
+			DayOfWeek:    "kamis",
+			StartTime:    parseTime("08:15"),
+			EndTime:      parseTime("09:00"),
+			Room:         stringPtr("Lab Listrik"),
+			AcademicYear: "2024/2025",
+			Semester:     "ganjil",
+			IsActive:     true,
+		},
+
+		{
+			ID:           "550e8400-e29b-41d4-a716-446655440072",
+			ClassID:      "550e8400-e29b-41d4-a716-446655440030",
+			SubjectID:    "550e8400-e29b-41d4-a716-446655440029",
+			TeacherID:    "550e8400-e29b-41d4-a716-446655440015",
+			DayOfWeek:    "kamis",
+			StartTime:    parseTime("09:00"),
+			EndTime:      parseTime("09:45"),
+			Room:         stringPtr("Lab Listrik"),
+			AcademicYear: "2024/2025",
+			Semester:     "ganjil",
+			IsActive:     true,
+		},
+
+		{
+			ID:           "550e8400-e29b-41d4-a716-446655440073",
+			ClassID:      "550e8400-e29b-41d4-a716-446655440030",
+			SubjectID:    "550e8400-e29b-41d4-a716-446655440029",
+			TeacherID:    "550e8400-e29b-41d4-a716-446655440015",
+			DayOfWeek:    "kamis",
+			StartTime:    parseTime("09:55"),
+			EndTime:      parseTime("10:40"),
+			Room:         stringPtr("Lab Listrik"),
+			AcademicYear: "2024/2025",
+			Semester:     "ganjil",
+			IsActive:     true,
+		},
+		{
+			ID:           "550e8400-e29b-41d4-a716-446655440074",
+			ClassID:      "550e8400-e29b-41d4-a716-446655440030",
+			SubjectID:    "550e8400-e29b-41d4-a716-446655440029",
+			TeacherID:    "550e8400-e29b-41d4-a716-446655440015",
+			DayOfWeek:    "kamis",
+			StartTime:    parseTime("10:40"),
+			EndTime:      parseTime("11:25"),
+			Room:         stringPtr("Lab Listrik"),
+			AcademicYear: "2024/2025",
+			Semester:     "ganjil",
+			IsActive:     true,
+		},
+
+		{
+			ID:           "550e8400-e29b-41d4-a716-446655440075",
+			ClassID:      "550e8400-e29b-41d4-a716-446655440030",
+			SubjectID:    "550e8400-e29b-41d4-a716-446655440031",
+			TeacherID:    "550e8400-e29b-41d4-a716-446655440014",
+			DayOfWeek:    "jumat",
+			StartTime:    parseTime("07:30"),
+			EndTime:      parseTime("08:10"),
+			Room:         stringPtr("XI-1"),
+			AcademicYear: "2024/2025",
+			Semester:     "ganjil",
+			IsActive:     true,
+		},
+		{
+			ID:           "550e8400-e29b-41d4-a716-446655440076",
+			ClassID:      "550e8400-e29b-41d4-a716-446655440030",
+			SubjectID:    "550e8400-e29b-41d4-a716-446655440029",
+			TeacherID:    "550e8400-e29b-41d4-a716-446655440015",
+			DayOfWeek:    "jumat",
+			StartTime:    parseTime("08:15"),
+			EndTime:      parseTime("09:00"),
+			Room:         stringPtr("Lab Listrik"),
+			AcademicYear: "2024/2025",
+			Semester:     "ganjil",
+			IsActive:     true,
+		},
+		{
+			ID:           "550e8400-e29b-41d4-a716-446655440077",
+			ClassID:      "550e8400-e29b-41d4-a716-446655440030",
+			SubjectID:    "550e8400-e29b-41d4-a716-446655440029",
+			TeacherID:    "550e8400-e29b-41d4-a716-446655440015",
+			DayOfWeek:    "jumat",
+			StartTime:    parseTime("09:00"),
+			EndTime:      parseTime("09:45"),
+			Room:         stringPtr("Lab Listrik"),
+			AcademicYear: "2024/2025",
+			Semester:     "ganjil",
+			IsActive:     true,
+		},
+
+		{
+			ID:           "550e8400-e29b-41d4-a716-446655440078",
+			ClassID:      "550e8400-e29b-41d4-a716-446655440030",
+			SubjectID:    "550e8400-e29b-41d4-a716-446655440029",
+			TeacherID:    "550e8400-e29b-41d4-a716-446655440015",
+			DayOfWeek:    "jumat",
+			StartTime:    parseTime("09:55"),
+			EndTime:      parseTime("10:40"),
+			Room:         stringPtr("Lab Listrik"),
+			AcademicYear: "2024/2025",
+			Semester:     "ganjil",
+			IsActive:     true,
+		},
+		{
+			ID:           "550e8400-e29b-41d4-a716-446655440079",
+			ClassID:      "550e8400-e29b-41d4-a716-446655440030",
+			SubjectID:    "550e8400-e29b-41d4-a716-446655440029",
+			TeacherID:    "550e8400-e29b-41d4-a716-446655440015",
+			DayOfWeek:    "jumat",
+			StartTime:    parseTime("10:40"),
+			EndTime:      parseTime("11:25"),
+			Room:         stringPtr("Lab Listrik"),
+			AcademicYear: "2024/2025",
+			Semester:     "ganjil",
+			IsActive:     true,
+		},
+
+		{
+			ID:           "550e8400-e29b-41d4-a716-446655440080",
+			ClassID:      "550e8400-e29b-41d4-a716-446655440030",
+			SubjectID:    "550e8400-e29b-41d4-a716-446655440026",
+			TeacherID:    "550e8400-e29b-41d4-a716-446655440016",
+			DayOfWeek:    "sabtu",
+			StartTime:    parseTime("07:30"),
+			EndTime:      parseTime("08:15"),
+			Room:         stringPtr("XI-1"),
+			AcademicYear: "2024/2025",
+			Semester:     "ganjil",
+			IsActive:     true,
+		},
+		{
+			ID:           "550e8400-e29b-41d4-a716-446655440081",
+			ClassID:      "550e8400-e29b-41d4-a716-446655440030",
+			SubjectID:    "550e8400-e29b-41d4-a716-446655440026",
+			TeacherID:    "550e8400-e29b-41d4-a716-446655440016",
+			DayOfWeek:    "sabtu",
+			StartTime:    parseTime("08:15"),
+			EndTime:      parseTime("09:00"),
+			Room:         stringPtr("XI-1"),
+			AcademicYear: "2024/2025",
+			Semester:     "ganjil",
+			IsActive:     true,
+		},
+
+		{
+			ID:           "550e8400-e29b-41d4-a716-446655440082",
+			ClassID:      "550e8400-e29b-41d4-a716-446655440030",
+			SubjectID:    "550e8400-e29b-41d4-a716-446655440026",
+			TeacherID:    "550e8400-e29b-41d4-a716-446655440016",
+			DayOfWeek:    "sabtu",
+			StartTime:    parseTime("09:15"),
+			EndTime:      parseTime("10:00"),
+			Room:         stringPtr("XI-1"),
+			AcademicYear: "2024/2025",
+			Semester:     "ganjil",
+			IsActive:     true,
+		},
+		{
+			ID:           "550e8400-e29b-41d4-a716-446655440083",
+			ClassID:      "550e8400-e29b-41d4-a716-446655440030",
+			SubjectID:    "550e8400-e29b-41d4-a716-446655440026",
+			TeacherID:    "550e8400-e29b-41d4-a716-446655440016",
+			DayOfWeek:    "sabtu",
+			StartTime:    parseTime("10:00"),
+			EndTime:      parseTime("10:45"),
+			Room:         stringPtr("XI-1"),
+			AcademicYear: "2024/2025",
+			Semester:     "ganjil",
+			IsActive:     true,
+		},
+		{
+			ID:           "550e8400-e29b-41d4-a716-446655440084",
+			ClassID:      "550e8400-e29b-41d4-a716-446655440030",
+			SubjectID:    "550e8400-e29b-41d4-a716-446655440026",
+			TeacherID:    "550e8400-e29b-41d4-a716-446655440016",
+			DayOfWeek:    "sabtu",
+			StartTime:    parseTime("10:45"),
+			EndTime:      parseTime("11:30"),
+			Room:         stringPtr("XI-1"),
+			AcademicYear: "2024/2025",
+			Semester:     "ganjil",
+			IsActive:     true,
+		},
+		{
+			ID:           "550e8400-e29b-41d4-a716-446655440085",
+			ClassID:      "550e8400-e29b-41d4-a716-446655440030",
+			SubjectID:    "550e8400-e29b-41d4-a716-446655440020",
+			TeacherID:    "550e8400-e29b-41d4-a716-446655440017",
+			DayOfWeek:    "sabtu",
+			StartTime:    parseTime("11:30"),
+			EndTime:      parseTime("12:15"),
+			Room:         stringPtr("XI-1"),
+			AcademicYear: "2024/2025",
+			Semester:     "ganjil",
+			IsActive:     true,
+		},
+
+		{
+			ID:           "550e8400-e29b-41d4-a716-446655440086",
+			ClassID:      "550e8400-e29b-41d4-a716-446655440030",
+			SubjectID:    "550e8400-e29b-41d4-a716-446655440020",
+			TeacherID:    "550e8400-e29b-41d4-a716-446655440017",
+			DayOfWeek:    "sabtu",
+			StartTime:    parseTime("13:15"),
+			EndTime:      parseTime("14:00"),
+			Room:         stringPtr("XI-1"),
 			AcademicYear: "2024/2025",
 			Semester:     "ganjil",
 			IsActive:     true,
 		},
 	}
 
-	return db.Create(&schedules).Error
+	for _, schedule := range schedules {
+		if err := db.FirstOrCreate(&schedule, models.ClassSchedule{
+			ClassID:   schedule.ClassID,
+			DayOfWeek: schedule.DayOfWeek,
+			StartTime: schedule.StartTime,
+		}).Error; err != nil {
+			return err
+		}
+	}
+
+	log.Printf("✅ Successfully seeded %d class schedules for XI TBSM according to the actual timetable", len(schedules))
+	return nil
 }
