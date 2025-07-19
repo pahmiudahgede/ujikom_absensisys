@@ -131,6 +131,67 @@
                 }
             }
         },
+        "/ujikom/api/attendance/rules": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    },
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get attendance settings, safe areas, and current attendance status for student",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Attendance"
+                ],
+                "summary": "Get Attendance Rules and Safe Areas",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/SuccessAPIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/AttendanceRulesResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/UnauthorizedAPIResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/NotFoundAPIResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/InternalServerErrorAPIResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/ujikom/api/health": {
             "get": {
                 "description": "Returns the health status of the API including database and Redis connectivity",
@@ -255,6 +316,71 @@
         }
     },
     "definitions": {
+        "AttendanceRulesResponse": {
+            "type": "object",
+            "properties": {
+                "can_check_in": {
+                    "type": "boolean"
+                },
+                "can_check_out": {
+                    "type": "boolean"
+                },
+                "current_time": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "safe_areas": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/SafeAreaDTO"
+                    }
+                },
+                "settings": {
+                    "$ref": "#/definitions/AttendanceSettingsDTO"
+                },
+                "status": {
+                    "description": "\"before_checkin\", \"checkin_time\", \"between\", \"checkout_time\", \"after_checkout\"",
+                    "type": "string"
+                }
+            }
+        },
+        "AttendanceSettingsDTO": {
+            "type": "object",
+            "properties": {
+                "check_in_end": {
+                    "description": "\"08:00\"",
+                    "type": "string"
+                },
+                "check_in_start": {
+                    "description": "\"07:00\"",
+                    "type": "string"
+                },
+                "check_out_end": {
+                    "description": "\"17:00\"",
+                    "type": "string"
+                },
+                "check_out_start": {
+                    "description": "\"15:00\"",
+                    "type": "string"
+                },
+                "late_tolerance": {
+                    "description": "minutes",
+                    "type": "integer"
+                },
+                "max_distance": {
+                    "description": "meters",
+                    "type": "integer"
+                },
+                "require_location": {
+                    "type": "boolean"
+                },
+                "require_photo": {
+                    "type": "boolean"
+                }
+            }
+        },
         "AttendanceSummary": {
             "type": "object",
             "properties": {
@@ -406,6 +532,33 @@
                             "example": 404
                         }
                     }
+                }
+            }
+        },
+        "SafeAreaDTO": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "is_active": {
+                    "type": "boolean"
+                },
+                "latitude": {
+                    "type": "number"
+                },
+                "longitude": {
+                    "type": "number"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "radius": {
+                    "description": "meters",
+                    "type": "number"
                 }
             }
         },

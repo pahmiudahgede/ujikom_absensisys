@@ -1,4 +1,50 @@
 definitions:
+  AttendanceRulesResponse:
+    properties:
+      can_check_in:
+        type: boolean
+      can_check_out:
+        type: boolean
+      current_time:
+        type: string
+      message:
+        type: string
+      safe_areas:
+        items:
+          $ref: '#/definitions/SafeAreaDTO'
+        type: array
+      settings:
+        $ref: '#/definitions/AttendanceSettingsDTO'
+      status:
+        description: '"before_checkin", "checkin_time", "between", "checkout_time",
+          "after_checkout"'
+        type: string
+    type: object
+  AttendanceSettingsDTO:
+    properties:
+      check_in_end:
+        description: '"08:00"'
+        type: string
+      check_in_start:
+        description: '"07:00"'
+        type: string
+      check_out_end:
+        description: '"17:00"'
+        type: string
+      check_out_start:
+        description: '"15:00"'
+        type: string
+      late_tolerance:
+        description: minutes
+        type: integer
+      max_distance:
+        description: meters
+        type: integer
+      require_location:
+        type: boolean
+      require_photo:
+        type: boolean
+    type: object
   AttendanceSummary:
     properties:
       absent_days:
@@ -104,6 +150,24 @@ definitions:
             example: 404
             type: integer
         type: object
+    type: object
+  SafeAreaDTO:
+    properties:
+      description:
+        type: string
+      id:
+        type: string
+      is_active:
+        type: boolean
+      latitude:
+        type: number
+      longitude:
+        type: number
+      name:
+        type: string
+      radius:
+        description: meters
+        type: number
     type: object
   StudentInfoResponse:
     properties:
@@ -679,6 +743,42 @@ paths:
       summary: Student Logout
       tags:
       - Auth
+  /ujikom/api/attendance/rules:
+    get:
+      consumes:
+      - application/json
+      description: Get attendance settings, safe areas, and current attendance status
+        for student
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/SuccessAPIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/AttendanceRulesResponse'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/UnauthorizedAPIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/NotFoundAPIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/InternalServerErrorAPIResponse'
+      security:
+      - ApiKeyAuth: []
+      - BearerAuth: []
+      summary: Get Attendance Rules and Safe Areas
+      tags:
+      - Attendance
   /ujikom/api/health:
     get:
       consumes:

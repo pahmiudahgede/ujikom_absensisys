@@ -12,4 +12,5 @@ func SetupRoutes(app *fiber.App) {
 	api.Use(middleware.APIKeyValidator())
 	AuthRouter(api)
 	StudentRoutes(api)
+	AttendanceRoutes(api)
 }
