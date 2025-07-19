@@ -1,19 +1,19 @@
-// File: internal/auth/auth_dto.go (with Swagger docs added)
 package auth
 
 import "time"
 
 // LoginRequest represents student login request payload
 type LoginRequest struct {
-	NISN       string `json:"nisn" validate:"required" example:"2024000579"`
+	Identifier string `json:"identifier" validate:"required" example:"2024000579"` // NISN or NIS
 	Password   string `json:"password" validate:"required" example:"password123"`
 	DeviceInfo string `json:"deviceinfo" example:"postmanstudent123x0=="`
 } //	@name	LoginRequest
 
-// LoginResponseData represents the actual login response data structure from your service
+// LoginResponseData represents the actual login response data structure
 type LoginResponseData struct {
 	UserID       string    `json:"user_id" example:"003061ee-97ff-4d00-8155-f4bf15e319dd"`
 	NISN         string    `json:"nisn" example:"2024000579"`
+	NIS          string    `json:"nis" example:"20240001"`
 	Name         string    `json:"name" example:"Eko Saputra"`
 	SessionID    string    `json:"session_id" example:"b5e882d0eb21c5ba7752d2b8f216ccad"`
 	AccessToken  string    `json:"access_token" example:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."`

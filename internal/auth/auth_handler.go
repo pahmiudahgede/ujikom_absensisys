@@ -1,10 +1,10 @@
-// File: internal/auth/auth_handler.go (with Swagger docs added)
 package auth
 
 import (
 	"absensibe/middleware"
 	"absensibe/utils"
 	"context"
+	"strings"
 	"time"
 
 	"github.com/go-playground/validator/v10"
@@ -26,7 +26,7 @@ func NewStudentHandler(service StudentService) *StudentHandler {
 // Login godoc
 //
 //	@Summary		Student Login
-//	@Description	Authenticate student dengan NISN dan password
+//	@Description	Authenticate student dengan NISN/NIS dan password
 //	@Tags			Auth
 //	@Accept			json
 //	@Produce		json
@@ -44,6 +44,20 @@ func (h *StudentHandler) Login(c *fiber.Ctx) error {
 	var req LoginRequest
 	if err := c.BodyParser(&req); err != nil {
 		return utils.BadRequest(c, "Invalid request body")
+	}
+
+	// Additional validation
+	if strings.TrimSpace(req.Identifier) == "" {
+		return utils.BadRequest(c, "NISN/NIS is required")
+	}
+	
+	if strings.TrimSpace(req.Password) == "" {
+		return utils.BadRequest(c, "Password is required")
+	}
+
+	// Auto-fill device info if not provided
+	if req.DeviceInfo == "" {
+		req.DeviceInfo = c.Get("User-Agent")
 	}
 
 	if err := h.validator.Struct(req); err != nil {

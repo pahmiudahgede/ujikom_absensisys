@@ -25,17 +25,19 @@ func NewStudentService(repo StudentRepository) StudentService {
 }
 
 func (s *studentService) Login(ctx context.Context, req LoginRequest, c *fiber.Ctx) (*middleware.SessionData, error) {
-
-	student, err := s.repo.GetByNISN(ctx, req.NISN)
+	// Get student by identifier (NISN or NIS)
+	student, err := s.repo.GetByIdentifier(ctx, req.Identifier)
 	if err != nil {
-		return nil, fmt.Errorf("invalid NISN or password")
+		return nil, fmt.Errorf("invalid NISN/NIS or password")
 	}
 
+	// Check password
 	err = bcrypt.CompareHashAndPassword([]byte(student.Password), []byte(req.Password))
 	if err != nil {
-		return nil, fmt.Errorf("invalid NISN or password")
+		return nil, fmt.Errorf("invalid NISN/NIS or password")
 	}
 
+	// Create session
 	sessionData, err := middleware.CreateSession(
 		student.ID,
 		student.NISN,
@@ -47,13 +49,18 @@ func (s *studentService) Login(ctx context.Context, req LoginRequest, c *fiber.C
 		return nil, fmt.Errorf("failed to create session: %w", err)
 	}
 
+	// Build response with both NISN and NIS
 	response := &middleware.SessionData{
-		UserID:      student.ID,
-		NISN:        student.NISN,
-		Name:        student.Fullname,
-		AccessToken: sessionData.AccessToken,
-		SessionID:   sessionData.SessionID,
-		DeviceInfo:  req.DeviceInfo,
+		UserID:       student.ID,
+		NISN:         student.NISN,
+		Name:         student.Fullname,
+		Role:         "student",
+		SessionID:    sessionData.SessionID,
+		AccessToken:  sessionData.AccessToken,
+		CreatedAt:    sessionData.CreatedAt,
+		LastActivity: sessionData.LastActivity,
+		DeviceInfo:   req.DeviceInfo,
+		IPAddress:    c.IP(),
 	}
 
 	return response, nil

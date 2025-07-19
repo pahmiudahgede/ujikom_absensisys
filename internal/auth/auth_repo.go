@@ -9,7 +9,7 @@ import (
 )
 
 type StudentRepository interface {
-	GetByNISN(ctx context.Context, nisn string) (*models.Student, error)
+	GetByIdentifier(ctx context.Context, identifier string) (*models.Student, error)
 }
 
 type studentRepository struct {
@@ -22,9 +22,14 @@ func NewStudentRepository(db *gorm.DB) StudentRepository {
 	}
 }
 
-func (r *studentRepository) GetByNISN(ctx context.Context, nisn string) (*models.Student, error) {
+func (r *studentRepository) GetByIdentifier(ctx context.Context, identifier string) (*models.Student, error) {
 	var student models.Student
-	err := r.db.WithContext(ctx).Where("nisn = ? AND status = ?", nisn, "aktif").First(&student).Error
+	
+	// Try to find by NISN or NIS
+	err := r.db.WithContext(ctx).
+		Where("(nisn = ? OR nis = ?) AND status = ?", identifier, identifier, "aktif").
+		First(&student).Error
+		
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, fmt.Errorf("student not found")
