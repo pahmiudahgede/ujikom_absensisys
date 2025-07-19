@@ -1,4 +1,19 @@
 definitions:
+  AttendanceSummary:
+    properties:
+      absent_days:
+        type: integer
+      attendance_rate:
+        type: number
+      current_month:
+        type: string
+      late_days:
+        type: integer
+      present_days:
+        type: integer
+      total_days:
+        type: integer
+    type: object
   BadRequestAPIResponse:
     properties:
       data: {}
@@ -78,6 +93,77 @@ definitions:
             type: integer
         type: object
     type: object
+  NotFoundAPIResponse:
+    properties:
+      meta:
+        properties:
+          message:
+            example: Resource not found
+            type: string
+          status:
+            example: 404
+            type: integer
+        type: object
+    type: object
+  StudentInfoResponse:
+    properties:
+      address:
+        type: string
+      attendance_summary:
+        allOf:
+        - $ref: '#/definitions/AttendanceSummary'
+        description: Meta info
+      attendances:
+        items:
+          $ref: '#/definitions/models.Attendance'
+        type: array
+      birth_date:
+        type: string
+      class:
+        allOf:
+        - $ref: '#/definitions/models.Class'
+        description: Optional relations
+      entry_year:
+        type: integer
+      father_name:
+        type: string
+      fullname:
+        type: string
+      gender:
+        type: string
+      id:
+        description: Basic student info
+        type: string
+      mother_name:
+        type: string
+      nis:
+        type: string
+      nisn:
+        type: string
+      phone:
+        type: string
+      photo_profile:
+        type: string
+      place_of_birth:
+        type: string
+      religion:
+        type: string
+      status:
+        type: string
+    type: object
+  SuccessAPIResponse:
+    properties:
+      data: {}
+      meta:
+        properties:
+          message:
+            example: Success
+            type: string
+          status:
+            example: 200
+            type: integer
+        type: object
+    type: object
   SuccessOnlyAPIResponse:
     properties:
       meta:
@@ -130,6 +216,382 @@ definitions:
         type: string
       version:
         example: 1.0.0
+        type: string
+    type: object
+  models.Attendance:
+    properties:
+      check_in_latitude:
+        description: Check-in data
+        type: number
+      check_in_longitude:
+        type: number
+      check_in_note:
+        type: string
+      check_in_photo:
+        type: string
+      check_in_status:
+        type: string
+      check_in_time:
+        type: string
+      check_out_latitude:
+        description: Check-out data
+        type: number
+      check_out_longitude:
+        type: number
+      check_out_note:
+        type: string
+      check_out_photo:
+        type: string
+      check_out_status:
+        type: string
+      check_out_time:
+        type: string
+      created_at:
+        type: string
+      date:
+        type: string
+      id:
+        type: string
+      student:
+        allOf:
+        - $ref: '#/definitions/models.Student'
+        description: Relations
+      student_id:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  models.AttendanceSettings:
+    properties:
+      check_in_end:
+        type: string
+      check_in_start:
+        type: string
+      check_out_end:
+        type: string
+      check_out_start:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: string
+      late_tolerance:
+        type: integer
+      max_distance:
+        type: integer
+      require_location:
+        type: boolean
+      require_photo:
+        type: boolean
+      school:
+        allOf:
+        - $ref: '#/definitions/models.School'
+        description: Relations
+      school_id:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  models.Class:
+    properties:
+      academic_year:
+        type: string
+      class_schedules:
+        items:
+          $ref: '#/definitions/models.ClassSchedule'
+        type: array
+      created_at:
+        type: string
+      grade:
+        type: string
+      homeroom_teacher:
+        $ref: '#/definitions/models.Teacher'
+      homeroom_teacher_id:
+        type: string
+      id:
+        type: string
+      is_active:
+        type: boolean
+      major:
+        type: string
+      name:
+        type: string
+      school:
+        allOf:
+        - $ref: '#/definitions/models.School'
+        description: Relations
+      school_id:
+        type: string
+      students:
+        items:
+          $ref: '#/definitions/models.Student'
+        type: array
+      updated_at:
+        type: string
+    type: object
+  models.ClassSchedule:
+    properties:
+      academic_year:
+        type: string
+      class:
+        allOf:
+        - $ref: '#/definitions/models.Class'
+        description: Relations
+      class_id:
+        type: string
+      created_at:
+        type: string
+      day_of_week:
+        type: string
+      end_time:
+        type: string
+      id:
+        type: string
+      is_active:
+        type: boolean
+      room:
+        type: string
+      semester:
+        type: string
+      start_time:
+        type: string
+      subject:
+        $ref: '#/definitions/models.Subject'
+      subject_id:
+        type: string
+      teacher:
+        $ref: '#/definitions/models.Teacher'
+      teacher_id:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  models.Holiday:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      end_date:
+        type: string
+      id:
+        type: string
+      is_active:
+        type: boolean
+      school:
+        allOf:
+        - $ref: '#/definitions/models.School'
+        description: Relations
+      school_id:
+        type: string
+      start_date:
+        type: string
+      title:
+        type: string
+      type:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  models.SafeArea:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      is_active:
+        type: boolean
+      latitude:
+        type: number
+      longitude:
+        type: number
+      name:
+        type: string
+      radius:
+        type: number
+      school:
+        allOf:
+        - $ref: '#/definitions/models.School'
+        description: Relations
+      school_id:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  models.School:
+    properties:
+      address:
+        type: string
+      attendance_settings:
+        $ref: '#/definitions/models.AttendanceSettings'
+      classes:
+        description: Relations
+        items:
+          $ref: '#/definitions/models.Class'
+        type: array
+      created_at:
+        type: string
+      email:
+        type: string
+      holidays:
+        items:
+          $ref: '#/definitions/models.Holiday'
+        type: array
+      id:
+        type: string
+      is_active:
+        type: boolean
+      latitude:
+        type: number
+      longitude:
+        type: number
+      name:
+        type: string
+      npsn:
+        type: string
+      phone:
+        type: string
+      principal:
+        type: string
+      safe_areas:
+        items:
+          $ref: '#/definitions/models.SafeArea'
+        type: array
+      subjects:
+        items:
+          $ref: '#/definitions/models.Subject'
+        type: array
+      teachers:
+        items:
+          $ref: '#/definitions/models.Teacher'
+        type: array
+      updated_at:
+        type: string
+      website:
+        type: string
+    type: object
+  models.Student:
+    properties:
+      address:
+        type: string
+      attendances:
+        items:
+          $ref: '#/definitions/models.Attendance'
+        type: array
+      birth_date:
+        type: string
+      class:
+        allOf:
+        - $ref: '#/definitions/models.Class'
+        description: Relations
+      class_id:
+        type: string
+      created_at:
+        type: string
+      entry_year:
+        type: integer
+      father_name:
+        description: Parent Information
+        type: string
+      fullname:
+        type: string
+      gender:
+        type: string
+      id:
+        type: string
+      mother_name:
+        type: string
+      nis:
+        type: string
+      nisn:
+        type: string
+      phone:
+        type: string
+      photo_profile:
+        type: string
+      place_of_birth:
+        type: string
+      religion:
+        type: string
+      status:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  models.Subject:
+    properties:
+      class_schedules:
+        items:
+          $ref: '#/definitions/models.ClassSchedule'
+        type: array
+      code:
+        type: string
+      created_at:
+        type: string
+      credit_hours:
+        type: integer
+      description:
+        type: string
+      id:
+        type: string
+      is_active:
+        type: boolean
+      name:
+        type: string
+      school:
+        allOf:
+        - $ref: '#/definitions/models.School'
+        description: Relations
+      school_id:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  models.Teacher:
+    properties:
+      birth_date:
+        type: string
+      class_schedules:
+        items:
+          $ref: '#/definitions/models.ClassSchedule'
+        type: array
+      classes_as_wali:
+        items:
+          $ref: '#/definitions/models.Class'
+        type: array
+      created_at:
+        type: string
+      email:
+        type: string
+      fullname:
+        type: string
+      gender:
+        type: string
+      id:
+        type: string
+      nuptk:
+        type: string
+      phone:
+        type: string
+      photo_profile:
+        type: string
+      place_of_birth:
+        type: string
+      position_type:
+        type: string
+      school:
+        allOf:
+        - $ref: '#/definitions/models.School'
+        description: Relations
+      school_id:
+        type: string
+      status:
+        type: string
+      teacher_code:
+        type: string
+      updated_at:
         type: string
     type: object
 info:
@@ -233,4 +695,65 @@ paths:
       summary: Health Check
       tags:
       - System
+  /ujikom/api/student/info:
+    get:
+      consumes:
+      - application/json
+      description: Get student information with optional relations (class, attendance,
+        schedule)
+      parameters:
+      - description: Include class information
+        in: query
+        name: class
+        type: boolean
+      - description: Include attendance information
+        in: query
+        name: absen
+        type: boolean
+      - description: Include schedule information
+        in: query
+        name: schedule
+        type: boolean
+      - description: 'Filter attendance by month (format: 2024-01)'
+        in: query
+        name: month
+        type: string
+      - description: 'Attendance records limit (default: 10, max: 50)'
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/SuccessAPIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/StudentInfoResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/BadRequestAPIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/UnauthorizedAPIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/NotFoundAPIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/InternalServerErrorAPIResponse'
+      security:
+      - ApiKeyAuth: []
+      - BearerAuth: []
+      summary: Get Student Information
+      tags:
+      - Student
 swagger: "2.0"

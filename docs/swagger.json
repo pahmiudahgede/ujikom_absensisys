@@ -153,9 +153,131 @@
                     }
                 }
             }
+        },
+        "/ujikom/api/student/info": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    },
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get student information with optional relations (class, attendance, schedule)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Student"
+                ],
+                "summary": "Get Student Information",
+                "parameters": [
+                    {
+                        "type": "boolean",
+                        "description": "Include class information",
+                        "name": "class",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Include attendance information",
+                        "name": "absen",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Include schedule information",
+                        "name": "schedule",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter attendance by month (format: 2024-01)",
+                        "name": "month",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Attendance records limit (default: 10, max: 50)",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/SuccessAPIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/StudentInfoResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/BadRequestAPIResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/UnauthorizedAPIResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/NotFoundAPIResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/InternalServerErrorAPIResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "AttendanceSummary": {
+            "type": "object",
+            "properties": {
+                "absent_days": {
+                    "type": "integer"
+                },
+                "attendance_rate": {
+                    "type": "number"
+                },
+                "current_month": {
+                    "type": "string"
+                },
+                "late_days": {
+                    "type": "integer"
+                },
+                "present_days": {
+                    "type": "integer"
+                },
+                "total_days": {
+                    "type": "integer"
+                }
+            }
+        },
         "BadRequestAPIResponse": {
             "type": "object",
             "properties": {
@@ -269,6 +391,116 @@
                 }
             }
         },
+        "NotFoundAPIResponse": {
+            "type": "object",
+            "properties": {
+                "meta": {
+                    "type": "object",
+                    "properties": {
+                        "message": {
+                            "type": "string",
+                            "example": "Resource not found"
+                        },
+                        "status": {
+                            "type": "integer",
+                            "example": 404
+                        }
+                    }
+                }
+            }
+        },
+        "StudentInfoResponse": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "attendance_summary": {
+                    "description": "Meta info",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/AttendanceSummary"
+                        }
+                    ]
+                },
+                "attendances": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Attendance"
+                    }
+                },
+                "birth_date": {
+                    "type": "string"
+                },
+                "class": {
+                    "description": "Optional relations",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.Class"
+                        }
+                    ]
+                },
+                "entry_year": {
+                    "type": "integer"
+                },
+                "father_name": {
+                    "type": "string"
+                },
+                "fullname": {
+                    "type": "string"
+                },
+                "gender": {
+                    "type": "string"
+                },
+                "id": {
+                    "description": "Basic student info",
+                    "type": "string"
+                },
+                "mother_name": {
+                    "type": "string"
+                },
+                "nis": {
+                    "type": "string"
+                },
+                "nisn": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "photo_profile": {
+                    "type": "string"
+                },
+                "place_of_birth": {
+                    "type": "string"
+                },
+                "religion": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "SuccessAPIResponse": {
+            "type": "object",
+            "properties": {
+                "data": {},
+                "meta": {
+                    "type": "object",
+                    "properties": {
+                        "message": {
+                            "type": "string",
+                            "example": "Success"
+                        },
+                        "status": {
+                            "type": "integer",
+                            "example": 200
+                        }
+                    }
+                }
+            }
+        },
         "SuccessOnlyAPIResponse": {
             "type": "object",
             "properties": {
@@ -344,6 +576,591 @@
                 "version": {
                     "type": "string",
                     "example": "1.0.0"
+                }
+            }
+        },
+        "models.Attendance": {
+            "type": "object",
+            "properties": {
+                "check_in_latitude": {
+                    "description": "Check-in data",
+                    "type": "number"
+                },
+                "check_in_longitude": {
+                    "type": "number"
+                },
+                "check_in_note": {
+                    "type": "string"
+                },
+                "check_in_photo": {
+                    "type": "string"
+                },
+                "check_in_status": {
+                    "type": "string"
+                },
+                "check_in_time": {
+                    "type": "string"
+                },
+                "check_out_latitude": {
+                    "description": "Check-out data",
+                    "type": "number"
+                },
+                "check_out_longitude": {
+                    "type": "number"
+                },
+                "check_out_note": {
+                    "type": "string"
+                },
+                "check_out_photo": {
+                    "type": "string"
+                },
+                "check_out_status": {
+                    "type": "string"
+                },
+                "check_out_time": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "date": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "student": {
+                    "description": "Relations",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.Student"
+                        }
+                    ]
+                },
+                "student_id": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.AttendanceSettings": {
+            "type": "object",
+            "properties": {
+                "check_in_end": {
+                    "type": "string"
+                },
+                "check_in_start": {
+                    "type": "string"
+                },
+                "check_out_end": {
+                    "type": "string"
+                },
+                "check_out_start": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "late_tolerance": {
+                    "type": "integer"
+                },
+                "max_distance": {
+                    "type": "integer"
+                },
+                "require_location": {
+                    "type": "boolean"
+                },
+                "require_photo": {
+                    "type": "boolean"
+                },
+                "school": {
+                    "description": "Relations",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.School"
+                        }
+                    ]
+                },
+                "school_id": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Class": {
+            "type": "object",
+            "properties": {
+                "academic_year": {
+                    "type": "string"
+                },
+                "class_schedules": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.ClassSchedule"
+                    }
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "grade": {
+                    "type": "string"
+                },
+                "homeroom_teacher": {
+                    "$ref": "#/definitions/models.Teacher"
+                },
+                "homeroom_teacher_id": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "is_active": {
+                    "type": "boolean"
+                },
+                "major": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "school": {
+                    "description": "Relations",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.School"
+                        }
+                    ]
+                },
+                "school_id": {
+                    "type": "string"
+                },
+                "students": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Student"
+                    }
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.ClassSchedule": {
+            "type": "object",
+            "properties": {
+                "academic_year": {
+                    "type": "string"
+                },
+                "class": {
+                    "description": "Relations",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.Class"
+                        }
+                    ]
+                },
+                "class_id": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "day_of_week": {
+                    "type": "string"
+                },
+                "end_time": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "is_active": {
+                    "type": "boolean"
+                },
+                "room": {
+                    "type": "string"
+                },
+                "semester": {
+                    "type": "string"
+                },
+                "start_time": {
+                    "type": "string"
+                },
+                "subject": {
+                    "$ref": "#/definitions/models.Subject"
+                },
+                "subject_id": {
+                    "type": "string"
+                },
+                "teacher": {
+                    "$ref": "#/definitions/models.Teacher"
+                },
+                "teacher_id": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Holiday": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "end_date": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "is_active": {
+                    "type": "boolean"
+                },
+                "school": {
+                    "description": "Relations",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.School"
+                        }
+                    ]
+                },
+                "school_id": {
+                    "type": "string"
+                },
+                "start_date": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.SafeArea": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "is_active": {
+                    "type": "boolean"
+                },
+                "latitude": {
+                    "type": "number"
+                },
+                "longitude": {
+                    "type": "number"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "radius": {
+                    "type": "number"
+                },
+                "school": {
+                    "description": "Relations",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.School"
+                        }
+                    ]
+                },
+                "school_id": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.School": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "attendance_settings": {
+                    "$ref": "#/definitions/models.AttendanceSettings"
+                },
+                "classes": {
+                    "description": "Relations",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Class"
+                    }
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "holidays": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Holiday"
+                    }
+                },
+                "id": {
+                    "type": "string"
+                },
+                "is_active": {
+                    "type": "boolean"
+                },
+                "latitude": {
+                    "type": "number"
+                },
+                "longitude": {
+                    "type": "number"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "npsn": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "principal": {
+                    "type": "string"
+                },
+                "safe_areas": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.SafeArea"
+                    }
+                },
+                "subjects": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Subject"
+                    }
+                },
+                "teachers": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Teacher"
+                    }
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "website": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Student": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "attendances": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Attendance"
+                    }
+                },
+                "birth_date": {
+                    "type": "string"
+                },
+                "class": {
+                    "description": "Relations",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.Class"
+                        }
+                    ]
+                },
+                "class_id": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "entry_year": {
+                    "type": "integer"
+                },
+                "father_name": {
+                    "description": "Parent Information",
+                    "type": "string"
+                },
+                "fullname": {
+                    "type": "string"
+                },
+                "gender": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "mother_name": {
+                    "type": "string"
+                },
+                "nis": {
+                    "type": "string"
+                },
+                "nisn": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "photo_profile": {
+                    "type": "string"
+                },
+                "place_of_birth": {
+                    "type": "string"
+                },
+                "religion": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Subject": {
+            "type": "object",
+            "properties": {
+                "class_schedules": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.ClassSchedule"
+                    }
+                },
+                "code": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "credit_hours": {
+                    "type": "integer"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "is_active": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "school": {
+                    "description": "Relations",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.School"
+                        }
+                    ]
+                },
+                "school_id": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Teacher": {
+            "type": "object",
+            "properties": {
+                "birth_date": {
+                    "type": "string"
+                },
+                "class_schedules": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.ClassSchedule"
+                    }
+                },
+                "classes_as_wali": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Class"
+                    }
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "fullname": {
+                    "type": "string"
+                },
+                "gender": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "nuptk": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "photo_profile": {
+                    "type": "string"
+                },
+                "place_of_birth": {
+                    "type": "string"
+                },
+                "position_type": {
+                    "type": "string"
+                },
+                "school": {
+                    "description": "Relations",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.School"
+                        }
+                    ]
+                },
+                "school_id": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "teacher_code": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
                 }
             }
         }
